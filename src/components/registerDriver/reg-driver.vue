@@ -1,50 +1,48 @@
 <template>
-    <transition name="slider">
-        <div class="register-user">
-            <ul class="register-user-content">
-                <li>
-                    <input type="text" placeholder="请输入手机号" v-model="phoneNumber" @blur="checkPhoneNumber">
-                    <span class="tip" v-show="tipPhone.isShow">{{tipPhone.text}}</span>
-                </li>
-                <li>
-                    <input type="text" placeholder="请输入验证码" class="verification" v-model="verification" @blur="checkVerification">
-                    <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
-                    <div class="verification-btn disable" v-else>{{countdown}}s</div>
-                    <span class="tip" v-show="tipVerification.isShow">{{tipVerification.text}}</span>
-                </li>
-                <li>
-                    <input type="password" placeholder="请输入密码，至少六位" v-model="password" @blur="checkPassword">
-                    <span class="tip" v-show="tipPass.isShow">{{tipPass.text}}</span>
-                </li>
-                <li>
-                    <input type="password" placeholder="确认密码"  v-model="passwordAgain" @blur="checkPasswordAgain">
-                    <span class="tip" v-show="tipPassAgain.isShow">{{tipPassAgain.text}}</span>
-                </li>
-                <li>
-                    <input type="button" v-if="btnFlag" value="注册" class="register-btn" @click="toRegister">
-                    <input type="button" v-else value="注册" class="register-btn register-btn-disable">
-                </li>
-                <li>
-                    <input type="checkbox" class="check" v-model="isCheck.state" @click="onCheck(isCheck)">
-                    <span class="check-text">
-                        已同意
-                        <router-link to="/regAgreement">《小黑师傅》</router-link>
-                        注册协议
-                    </span>
-                </li>
+  <div class="register-user">
+      <ul class="register-user-content">
+        <li>
+            <input type="text" placeholder="请输入手机号" v-model="phoneNumber" @blur="checkPhoneNumber">
+            <span class="tip" v-show="tipPhone.isShow">{{tipPhone.text}}</span>
+        </li>
+        <li>
+            <input type="text" placeholder="请输入验证码" class="verification" v-model="verification" @blur="checkVerification">
+            <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
+            <div class="verification-btn disable" v-else>{{countdown}}s</div>
+            <span class="tip" v-show="tipVerification.isShow">{{tipVerification.text}}</span>
+        </li>
+        <li>
+            <input type="password" placeholder="请输入密码，至少六位" v-model="password" @blur="checkPassword">
+            <span class="tip" v-show="tipPass.isShow">{{tipPass.text}}</span>
+        </li>
+        <li>
+            <input type="password" placeholder="确认密码"  v-model="passwordAgain" @blur="checkPasswordAgain">
+            <span class="tip" v-show="tipPassAgain.isShow">{{tipPassAgain.text}}</span>
+        </li>
+        <li>
+            <input type="button" v-if="btnFlag" value="我有车，我要成为小黑师傅司机" class="register-btn" @click="toRegister">
+            <input type="button" v-else value="我有车，我要成为小黑师傅司机" class="register-btn register-btn-disable">
+        </li>
+        <li>
+            <input type="checkbox" class="check" v-model="isCheck.state" @click="onCheck(isCheck)">
+            <span class="check-text">
+                已同意
+                <router-link to="/regAgreement">《小黑师傅》</router-link>
+                注册协议
+            </span>
+        </li>
+      </ul>
+      <transition name="fadea">
+        <div class="reg-classes" v-show="isMarkShow">
+            <h2>注册成功，请选择身份</h2>
+            <ul class="classes">
+                <router-link to="/regDriverPersonal" tag="li">司机</router-link>
+                <router-link to="/regDriverTeam" tag="li">车队</router-link>
             </ul>
-            <transition name="fadea">
-                <div class="reg-classes" v-show="isMarkShow">
-                    <h2>注册成功，请选择身份</h2>
-                    <ul class="classes">
-                        <router-link to="/regPersonal" tag="li">个人</router-link>
-                        <router-link to="/regCompany" tag="li">企业</router-link>
-                    </ul>
-                </div>
-            </transition>
-            <div class="mark" v-show="isMarkShow" @click="MarkHide"></div>
         </div>
-    </transition>
+      </transition>
+      <div class="mark" v-show="isMarkShow" @click="MarkHide"></div>
+  </div>
 </template>
 <script>
 export default {
@@ -173,12 +171,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-    .slider-enter, .slider-leave-to{
-        transform: translate3d(100%, 0, 0);
-    }
-    .slider-enter-active, .slider-leave-active{
-        transition: all 0.2s;
-    }
     .register-user{
         .register-user-content{
             padding-top: 28px;

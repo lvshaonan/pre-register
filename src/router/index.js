@@ -1,17 +1,29 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Hello from '@/components/Hello'
+
+import welcome from '@/components/welcome'
+
 import registerUser from '@/components/registerUser/register-user'
-import regAgreement from '@/components/registerUser/reg-agreement'
+import regAgreement from '@/components/reg-agreement'
 import regPersonal from '@/components/registerUser/reg-personal'
 import regCompany from '@/components/registerUser/reg-company'
 
+import regDriver from '@/components/registerDriver/reg-driver'
+import regDriverPersonal from '@/components/registerDriver/reg-driver-personal'
+import regDriverTeam from '@/components/registerDriver/reg-driver-team'
+import regDriverInfo from '@/components/registerDriver/reg-driver-info'
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
       path: '/',
+      name: 'welcome',
+      component: welcome
+    },
+    {
+      path: '/registerUser',
       name: 'registerUser',
       component: registerUser
     },
@@ -29,6 +41,26 @@ export default new Router({
       path: '/regCompany',
       name: 'regCompany',
       component: regCompany
+    },
+    {
+      path: '/regDriver',
+      name: 'regDriver',
+      component: regDriver
+    },
+    {
+      path: '/regDriverPersonal',
+      name: 'regDriverPersonal',
+      component: regDriverPersonal
+    },
+    {
+      path: '/regDriverTeam',
+      name: 'regDriverTeam',
+      component: regDriverTeam
+    },
+    {
+      path: '/regDriverInfo',
+      name: 'regDriverInfo',
+      component: regDriverInfo
     }
   ]
 })

@@ -1,10 +1,10 @@
 <template>
     <transition name="slider">
         <div class="reg-personal">
-            <div class="reg-personal-content">
+            <div class="reg-personal-content" ref="scrollWrapper">
                 <ul>
                     <li class="input-img">
-                        <span class="item">身份证正面照</span>
+                        <span class="item"><b>&lowast;</b>身份证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
                             <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
@@ -14,9 +14,7 @@
                         </span>
                     </li>
                     <li class="input-img">
-                        <span class="item">
-                            身份证反面照
-                        </span>
+                        <span class="item"><b>&lowast;</b>身份证反面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
                             <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
@@ -25,51 +23,91 @@
                             </span>
                         </span>
                     </li>
+                    
                     <li>
-                        <span class="item">
-                            姓名
-                        </span>
+                        <span class="item"><b>&lowast;</b>姓名</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            身份证号
-                        </span>
+                        <span class="item"><b>&lowast;</b>身份证号</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            地址
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>地址</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            身份证有效期
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            联系电话
-                        </span>
+                        <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
-                    <li class="submit-li">
-                        <button class="submit">提交</button>
+                    <li class="input-img">
+                        <span class="item"><b>&lowast;</b>驾驶证正面照</span>
+                        <span class="item-value">
+                            <a href="javascript:" class="input-img-btn" v-on:click="addLicense">+</a>
+                            <input type="file" @change="onFileLicenseChange" multiple style="display: none;" ref="onFileLicenseChange" accept="image/*">
+                            <span class="img-wrapper" v-if="imageLicense">
+                                <img :src="imageLicense" alt="" >
+                            </span>
+                        </span>
                     </li>
                     <li>
-                        <button class="later">跳过，稍后完善</button>
+                        <span class="item"><b>&lowast;</b>姓名</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&lowast;</b>地址</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&lowast;</b>准驾车型</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>车牌号</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>发动机号</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>所属车队</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li class="next">
+                        <router-link to="/regDriverInfo" tag="button">下一步</router-link>
                     </li>
                     <li></li>
                 </ul>
@@ -78,19 +116,33 @@
     </transition>
 </template>
 <script>
+import BScroll from 'better-scroll';
 export default {
     data() {
         return {
             imageFront: '',
-            imageReverse: ''
+            imageReverse: '',
+            imageLicense: ''
         }
     },
     created() {
-        document.title = '完善信息';
+        document.title = '司机认证';
+    },
+    mounted() {
+        this.$nextTick(() => {
+            this._initScroll();
+        });
     },
     methods: {
-        back() {
-            this.$router.back();
+        _initScroll() {
+            this.scroll = new BScroll(this.$refs.scrollWrapper, {
+                click: true
+            });
+        },
+        addLicense(e){
+            e.preventDefault();
+            this.$refs.onFileLicenseChange.click();
+            return false;
         },
         addPicFront(e){
             e.preventDefault();
@@ -101,6 +153,11 @@ export default {
             e.preventDefault();
             this.$refs.onFileReverseChange.click();
             return false;
+        },
+        onFileLicenseChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+            this.createImage(files, 'license');
         },
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -127,6 +184,8 @@ export default {
                     that.imageFront = e.target.result;
                 }else if(flag == 'reverse'){
                     that.imageReverse = e.target.result;
+                }else if(flag == 'license'){
+                    that.imageLicense = e.target.result;
                 }
             };
         },
@@ -162,30 +221,14 @@ export default {
         right: 0;
         bottom: 0;
         background-color: #fff;
-        .header{
-            height: 44px;
-            line-height: 44px;
-            border-bottom: 1px solid #dfdfdf;
-            text-align: center;
-            font-size: 18px;
-            position: relative;
-            box-sizing: border-box;
-            .back{
-                position: absolute;
-                padding: 0 16px;
-                left: 0;
-            }
-        }
+        display: flex;
+        flex-direction: column;
         .reg-personal-content{
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            overflow: hidden;
+            flex: 1;
             ul{
                 width: 94%;
-                padding: 0 3%;
-                padding-top: 20px;
+                padding: 20px 3% 0;
                 li{
                     height: 40px;
                     line-height: 40px;
@@ -202,6 +245,10 @@ export default {
                             width: 35%;
                             font-size: 12px;
                             flex: 3;
+                            b{
+                                color: #f00;
+                                padding-right: 5px;
+                            }
                         }
                         &.item-value{
                             height: 100%;
@@ -250,7 +297,7 @@ export default {
                             background:#A1A1A1;
                         }
                     }
-                    &.submit-li{
+                    &.next{
                         padding-top: 20px;
                     }
                 }

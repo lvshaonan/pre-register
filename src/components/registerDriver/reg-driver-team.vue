@@ -1,10 +1,10 @@
 <template>
     <transition name="slider">
         <div class="reg-personal">
-            <div class="reg-personal-content">
+            <div class="reg-personal-content" ref="scrollWrapper">
                 <ul>
                     <li class="input-img">
-                        <span class="item">身份证正面照</span>
+                        <span class="item"><b>&lowast;</b>身份证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
                             <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
@@ -14,9 +14,7 @@
                         </span>
                     </li>
                     <li class="input-img">
-                        <span class="item">
-                            身份证反面照
-                        </span>
+                        <span class="item"><b>&lowast;</b>身份证反面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
                             <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
@@ -26,41 +24,127 @@
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            姓名
-                        </span>
+                        <span class="item"><b>&lowast;</b>姓名</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            身份证号
-                        </span>
+                        <span class="item"><b>&lowast;</b>身份证号</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            地址
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>地址</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            身份证有效期
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            联系电话
+                        <span class="item"><b>&lowast;</b>联系电话</span>
+                        <span class="item-value">
+                            <input type="text">
                         </span>
+                    </li>
+                    <li class="input-img">
+                        <span class="item"><b>&lowast;</b>营业执照</span>
+                        <span class="item-value">
+                            <a href="javascript:" class="input-img-btn" v-on:click="addBusinessLicense">+</a>
+                            <input type="file" @change="onBusinessLicenseChange" multiple style="display: none;" ref="onBusinessLicenseChange" accept="image/*">
+                            <span class="img-wrapper" v-if="imageBusinessLicense">
+                                <img :src="imageBusinessLicense" alt="" >
+                            </span>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&lowast;</b>公司名称</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&lowast;</b>营业执照编码</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>法人姓名</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>公司地址</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li class="input-img">
+                        <span class="item"><b>&lowast;</b>危险品运输许可证</span>
+                        <span class="item-value">
+                            <a href="javascript:" class="input-img-btn" v-on:click="addDangerous">+</a>
+                            <input type="file" @change="onFileDangerousChange" multiple style="display: none;" ref="onFileDangerousChange" accept="image/*">
+                            <span class="img-wrapper" v-if="imageDangerous">
+                                <img :src="imageDangerous" alt="" >
+                            </span>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>公司名称</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>危险品运输许可证号</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li class="input-img">
+                        <span class="item"><b>&lowast;</b>道路运输许可证</span>
+                        <span class="item-value">
+                            <a href="javascript:" class="input-img-btn" v-on:click="addRoad">+</a>
+                            <input type="file" @change="onFileRoadChange" multiple style="display: none;" ref="onFileRoadChange" accept="image/*">
+                            <span class="img-wrapper" v-if="imageRoad">
+                                <img :src="imageRoad" alt="" >
+                            </span>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>公司名称</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
+                        <span class="item-value">
+                            <input type="text">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>道路运输许可证号</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
@@ -78,19 +162,35 @@
     </transition>
 </template>
 <script>
+import BScroll from 'better-scroll';
 export default {
     data() {
         return {
             imageFront: '',
-            imageReverse: ''
+            imageReverse: '',
+            imageBusinessLicense: '',
+            imageDangerous: '',
+            imageRoad: ''
         }
     },
     created() {
-        document.title = '完善信息';
+        document.title = '车队认证';
+    },
+    mounted() {
+        this.$nextTick(() => {
+            this._initScroll();
+        });
     },
     methods: {
-        back() {
-            this.$router.back();
+        _initScroll() {
+            this.scroll = new BScroll(this.$refs.scrollWrapper, {
+                click: true
+            });
+        },
+        addBusinessLicense(e){
+            e.preventDefault();
+            this.$refs.onBusinessLicenseChange.click();
+            return false;
         },
         addPicFront(e){
             e.preventDefault();
@@ -102,6 +202,21 @@ export default {
             this.$refs.onFileReverseChange.click();
             return false;
         },
+        addDangerous(e) {
+            e.preventDefault();
+            this.$refs.onFileDangerousChange.click();
+            return false;
+        },
+        addRoad(e){
+            e.preventDefault();
+            this.$refs.onFileRoadChange.click();
+            return false;
+        },
+        onBusinessLicenseChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+            this.createImage(files, 'BusinessLicense');
+        },
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
@@ -111,6 +226,16 @@ export default {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
             this.createImage(files, 'reverse');
+        },
+        onFileDangerousChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+            this.createImage(files, 'dangerous');
+        },
+        onFileRoadChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+            this.createImage(files, 'road');
         },
         createImage(file, flag) {
             if (typeof FileReader === 'undefined') {
@@ -127,6 +252,12 @@ export default {
                     that.imageFront = e.target.result;
                 }else if(flag == 'reverse'){
                     that.imageReverse = e.target.result;
+                }else if(flag == 'BusinessLicense'){
+                    that.imageBusinessLicense = e.target.result;
+                }else if(flag == 'dangerous'){
+                    that.imageDangerous = e.target.result;
+                }else if(flag == 'road'){
+                    that.imageRoad = e.target.result;
                 }
             };
         },
@@ -162,30 +293,14 @@ export default {
         right: 0;
         bottom: 0;
         background-color: #fff;
-        .header{
-            height: 44px;
-            line-height: 44px;
-            border-bottom: 1px solid #dfdfdf;
-            text-align: center;
-            font-size: 18px;
-            position: relative;
-            box-sizing: border-box;
-            .back{
-                position: absolute;
-                padding: 0 16px;
-                left: 0;
-            }
-        }
+        display: flex;
+        flex-direction: column;
         .reg-personal-content{
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            overflow: hidden;
+            flex: 1;
             ul{
                 width: 94%;
-                padding: 0 3%;
-                padding-top: 20px;
+                padding: 20px 3% 0;
                 li{
                     height: 40px;
                     line-height: 40px;
@@ -201,13 +316,16 @@ export default {
                         &.item{
                             width: 35%;
                             font-size: 12px;
-                            flex: 3;
+                            flex: 3.6;
+                            b{
+                                color: #f00;
+                                padding-right: 5px;
+                            }
                         }
                         &.item-value{
                             height: 100%;
                             width: 64%;
-                            flex: 7;
-                            
+                            flex: 6.4;
                             input{
                                 width: 100%;
                                 height: 100%;

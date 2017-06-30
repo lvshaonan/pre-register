@@ -1,12 +1,7 @@
 <template>
     <transition name="slider">
         <div class="reg-agreement">
-            <div class="header">
-                <b class="back" @click="back">
-                    &lt;
-                </b>
-                <h1>注册协议</h1>
-            </div>
+            注册协议
         </div>
     </transition>
 </template>
@@ -17,10 +12,11 @@ export default {
 
         }
     },
+    created() {
+        document.title = '注册协议';
+    },
     methods: {
-        back() {
-            this.$router.back();
-        }
+        
     }
 }
 </script>

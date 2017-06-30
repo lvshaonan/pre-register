@@ -1,19 +1,13 @@
 <template>
     <transition name="slider">
         <div class="reg-personal">
-            <div class="header">
-                <b class="back" @click="back">
-                    &lt;
-                </b>
-                <h1>完善信息</h1>
-            </div>
             <div class="reg-personal-content" ref="scrollWrapper">
                 <ul>
                     <li class="input-img">
                         <span class="item"><b>&lowast;</b>营业执照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addLicense">+</a>
-                            <input type="file" @change="onFileLicenseChange" multiple style="display: none;" ref="onFileLicenseChange" accept="image/*" capture="camera">
+                            <input type="file" @change="onFileLicenseChange" multiple style="display: none;" ref="onFileLicenseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageLicense">
                                 <img :src="imageLicense" alt="" >
                             </span>
@@ -32,17 +26,13 @@
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            法人姓名
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>法人姓名</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            有效期
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
@@ -51,7 +41,7 @@
                         <span class="item"><b>&lowast;</b>身份证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
-                            <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*" capture="camera">
+                            <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageFront">
                                 <img :src="imageFront" alt="" >
                             </span>
@@ -61,7 +51,7 @@
                         <span class="item"><b>&lowast;</b>身份证反面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
-                            <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*" capture="camera">
+                            <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageReverse">
                                 <img :src="imageReverse" alt="" >
                             </span>
@@ -80,17 +70,13 @@
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            地址
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>地址</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            有效期
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
                             <input type="text">
                         </span>
@@ -123,6 +109,9 @@ export default {
             imageLicense: ''
         }
     },
+    created() {
+        document.title = '完善信息';
+    },
     mounted() {
         this.$nextTick(() => {
             this._initScroll();
@@ -133,9 +122,6 @@ export default {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
                 click: true
             });
-        },
-        back() {
-            this.$router.back();
         },
         addLicense(e){
             e.preventDefault();
@@ -221,21 +207,6 @@ export default {
         background-color: #fff;
         display: flex;
         flex-direction: column;
-        .header{
-            height: 44px;
-            background: #fff;
-            line-height: 44px;
-            border-bottom: 1px solid #dfdfdf;
-            text-align: center;
-            font-size: 18px;
-            position: relative;
-            box-sizing: border-box;
-            .back{
-                position: absolute;
-                padding: 0 16px;
-                left: 0;
-            }
-        }
         .reg-personal-content{
             overflow: hidden;
             flex: 1;
