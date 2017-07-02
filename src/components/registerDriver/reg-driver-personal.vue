@@ -27,31 +27,31 @@
                     <li>
                         <span class="item"><b>&lowast;</b>姓名</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="name">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>身份证号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="userId">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>地址</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="address">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="validity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="phoneNum">
                         </span>
                     </li>
                     <li class="input-img">
@@ -67,73 +67,121 @@
                     <li>
                         <span class="item"><b>&lowast;</b>姓名</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="drivingLicenceName">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>地址</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="drivingLicenceAddress">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>准驾车型</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="drivingLicenceCar">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="drivingLicenceValidity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>车牌号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="plateNumber">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>发动机号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="engineNumber">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>所属车队</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="team">
                         </span>
                     </li>
                     <li class="next">
-                        <router-link to="/regDriverInfo" tag="button">下一步</router-link>
+                        <button @click="toNext">下一步</button>
                     </li>
                     <li></li>
                 </ul>
             </div>
+            <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
         </div>
     </transition>
 </template>
 <script>
 import BScroll from 'better-scroll';
+import dialog from '../../base/dialog/dialog';
 export default {
     data() {
         return {
             imageFront: '',
             imageReverse: '',
-            imageLicense: ''
+            imageLicense: '',
+            name: '',
+            userId: '',
+            address: '',
+            validity: '',
+            phoneNum: '',
+            drivingLicenceName: '',
+            drivingLicenceAddress: '',
+            drivingLicenceCar: '',
+            drivingLicenceValidity: '',
+            plateNumber: '',
+            engineNumber: '',
+            team: '',
+            isDialogShow:false,
+            dialogTit: '',
         }
     },
     created() {
         document.title = '司机认证';
+    },
+    components: {
+        'v-dialog': dialog
     },
     mounted() {
         this.$nextTick(() => {
             this._initScroll();
         });
     },
+    watch: {
+        isDialogShow() {
+            if(this.isDialogShow) {
+                setTimeout(() => {
+                    this.isDialogShow = false
+                }, 2000);
+            }
+        }
+    },
     methods: {
+        toNext() {
+            if(this._checkRules(this.imageFront, '请上传身份证正面照')) return;
+            if(this._checkRules(this.imageReverse, '请上传身份证背面照')) return;
+            if(this._checkRules(this.name, '请填写姓名')) return;
+            if(this._checkRules(this.userId, '请填写身份证号')){
+                return;
+            }else if(this.userId.length != 18){
+                setTimeout(() => {
+                    this.isDialogShow = true;
+                },100);
+                this.dialogTit = '请填写18位身份证号';
+                return;
+            }
+            if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+            if(this._checkRules(this.imageLicense, '请上传驾驶证正面照')) return;
+            if(this._checkRules(this.drivingLicenceName, '请填写驾驶证姓名')) return;
+            if(this._checkRules(this.drivingLicenceCar, '请填写准驾车型')) return;
+            //ajax...
+            this.$router.push("/regDriverInfo");
+        },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
                 click: true
@@ -168,6 +216,16 @@ export default {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
             this.createImage(files, 'reverse');
+        },
+        _checkRules(val, tit) {
+            let that = this;
+            if(val == ''){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = tit;
+                return true;
+            }
         },
         createImage(file, flag) {
             if (typeof FileReader === 'undefined') {

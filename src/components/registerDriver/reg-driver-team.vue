@@ -26,31 +26,31 @@
                     <li>
                         <span class="item"><b>&lowast;</b>姓名</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="name">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>身份证号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="userId">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>地址</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="address">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="userIdvalidity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="phoneNum">
                         </span>
                     </li>
                     <li class="input-img">
@@ -66,31 +66,31 @@
                     <li>
                         <span class="item"><b>&lowast;</b>公司名称</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="companyName">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>营业执照编码</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="licenseCode">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>法人姓名</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="legalPerson">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>公司地址</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="companyAddress">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="yingyeValidity">
                         </span>
                     </li>
                     <li class="input-img">
@@ -106,19 +106,19 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>公司名称</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="DangerousCompanyName">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="DangerousValidity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>危险品运输许可证号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="DangerousCode">
                         </span>
                     </li>
                     <li class="input-img">
@@ -134,23 +134,23 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>公司名称</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="RoadCompanyName">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="RoadValidity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>道路运输许可证号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="RoadCode">
                         </span>
                     </li>
                     <li class="submit-li">
-                        <button class="submit">提交</button>
+                        <button class="submit" @click="toSubmit">提交</button>
                     </li>
                     <li>
                         <button class="later">跳过，稍后完善</button>
@@ -158,19 +158,39 @@
                     <li></li>
                 </ul>
             </div>
+            <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
         </div>
     </transition>
 </template>
 <script>
 import BScroll from 'better-scroll';
+import dialog from '../../base/dialog/dialog';
 export default {
     data() {
         return {
+            isDialogShow:false,
+            dialogTit: '',
             imageFront: '',
             imageReverse: '',
             imageBusinessLicense: '',
             imageDangerous: '',
-            imageRoad: ''
+            imageRoad: '',
+            companyName: '',
+            licenseCode: '',
+            legalPerson: '',
+            name: '',
+            userId: '',
+            address: '',
+            phoneNum: '',
+            userIdvalidity: '',
+            companyAddress: '',
+            yingyeValidity: '',
+            DangerousCode: '',
+            RoadCompanyName: '',
+            RoadValidity: '',
+            RoadCode: '',
+            DangerousCompanyName: '',
+            DangerousValidity: ''
         }
     },
     created() {
@@ -181,7 +201,40 @@ export default {
             this._initScroll();
         });
     },
+    components: {
+        'v-dialog': dialog
+    },
+    watch: {
+        isDialogShow() {
+            if(this.isDialogShow) {
+                setTimeout(() => {
+                    this.isDialogShow = false
+                }, 2000);
+            }
+        }
+    },
     methods: {
+        toSubmit() {
+            if(this._checkRules(this.imageFront, '请上传身份证正面照')) return;
+            if(this._checkRules(this.imageReverse, '请上传身份证背面照')) return;
+            if(this._checkRules(this.name, '请填写姓名')) return;
+            if(this._checkRules(this.userId, '请填写身份证号')){
+                return;
+            }else if(this.userId.length != 18){
+                setTimeout(() => {
+                    this.isDialogShow = true;
+                },100);
+                this.dialogTit = '请填写18位身份证号';
+                return;
+            }
+            if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+            if(this._checkRules(this.imageBusinessLicense, '请上传营业执照')) return;
+            if(this._checkRules(this.companyName, '请填写公司名称')) return;
+            if(this._checkRules(this.licenseCode, '请填写营业执照编码')) return;
+            if(this._checkRules(this.imageDangerous, '请上传危险品运输许可证')) return;
+            if(this._checkRules(this.imageRoad, '请上传道路运输许可证')) return;
+            //ajax...
+        },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
                 click: true
@@ -236,6 +289,16 @@ export default {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
             this.createImage(files, 'road');
+        },
+        _checkRules(val, tit) {
+            let that = this;
+            if(val == ''){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = tit;
+                return true;
+            }
         },
         createImage(file, flag) {
             if (typeof FileReader === 'undefined') {

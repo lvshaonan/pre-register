@@ -27,45 +27,53 @@
                     <li>
                         <span class="item"><b>&lowast;</b>车牌号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="plateNum">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>所有人姓名</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="ownerName">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>发动机号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="engineNum">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>车辆识别代码</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="identifyCode">
                         </span>
                     </li>
                     <li class="next">
                         <button>跳过并提交</button>
                     </li>
                     <li>
-                        <button>提交</button>
+                        <button @click="toSubmit">提交</button>
                     </li>
                 </ul>
             </div>
+            <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
         </div>
     </transition>
 </template>
 <script>
 import BScroll from 'better-scroll';
+import dialog from '../../base/dialog/dialog';
 export default {
     data() {
         return {
+            isDialogShow:false,
+            dialogTit: '',
             imageCarFront: '',
-            imageVehicle: ''
+            imageVehicle: '',
+            plateNum: '',
+            ownerName: '',
+            engineNum: '',
+            identifyCode: '',
         }
     },
     created() {
@@ -76,7 +84,26 @@ export default {
             this._initScroll();
         });
     },
+    components: {
+        'v-dialog': dialog
+    },
+    watch: {
+        isDialogShow() {
+            if(this.isDialogShow) {
+                setTimeout(() => {
+                    this.isDialogShow = false
+                }, 2000);
+            }
+        }
+    },
     methods: {
+        toSubmit() {
+            if(this._checkRules(this.imageCarFront, '请上传车辆45°照片')) return;
+            if(this._checkRules(this.imageVehicle, '请上传行驶证正面照')) return;
+            if(this._checkRules(this.plateNum, '请填写车牌号')) return;
+            if(this._checkRules(this.ownerName, '请填写所有人姓名')) return;
+            if(this._checkRules(this.engineNum, '请填写发动机号')) return;
+        },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
                 click: true
@@ -106,6 +133,16 @@ export default {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
             this.createImage(files, 'carFront');
+        },
+        _checkRules(val, tit) {
+            let that = this;
+            if(val == ''){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = tit;
+                return true;
+            }
         },
         createImage(file, flag) {
             if (typeof FileReader === 'undefined') {

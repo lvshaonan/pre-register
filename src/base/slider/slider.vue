@@ -3,11 +3,20 @@
       <div class="slider-wrapper" ref="sliderWrapper">
           <slot></slot>
       </div>
+      <div class="dots">
+        <span class="dot" :class="{active: currentPageIndex === index }" v-for="(item, index) in dots" :key="index"></span>
+      </div>
   </div>
 </template>
 <script>
 import BScroll from 'better-scroll';
 export default {
+    data() {
+        return {
+            currentPageIndex: 0,
+            dots: []
+        }
+    },
   props: {
     loop: {
         type:Boolean,
@@ -60,12 +69,16 @@ export default {
         this.slider.on('beforeScrollStart', () => {
             
         });
+    },
+    _initDots() {
+        this.dots = new Array(3);
     }
   },
   mounted() {
     this.$nextTick(() => {
         this._initSetWidth();
         this._initSlider();
+        this._initDots();
     })
   }
 }
@@ -83,6 +96,27 @@ export default {
                 }
                 img{
                     width: 100%;
+                }
+            }
+        }
+        .dots{
+            position: absolute;
+            right: 0;
+            left: 0;
+            bottom: 15%;
+            text-align: center;
+            font-size: 0;
+            .dot{
+                display: inline-block;
+                margin: 0 4px;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.6);
+                &.active{
+                    width: 20px;
+                    border-radius: 5px;
+                    background: rgba(255, 255, 255, 0.9);
                 }
             }
         }

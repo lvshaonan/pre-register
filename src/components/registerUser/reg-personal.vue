@@ -4,69 +4,67 @@
             <div class="reg-personal-content">
                 <ul>
                     <li class="input-img">
-                        <span class="item">身份证正面照</span>
+                        <span class="item"><b>&lowast;</b>身份证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
                             <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageFront">
                                 <img :src="imageFront" alt="" >
+                                <b class="delete" @click="onDelete('imageFront')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u111.png" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
                     <li class="input-img">
-                        <span class="item">
-                            身份证反面照
-                        </span>
+                        <span class="item"><b>&lowast;</b>身份证反面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
                             <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageReverse">
                                 <img :src="imageReverse" alt="" >
+                                <b class="delete" @click="onDelete('imageReverse')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u125.jpg" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            姓名
-                        </span>
+                        <span class="item"><b>&lowast;</b>姓名</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="userName">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            身份证号
-                        </span>
+                        <span class="item"><b>&lowast;</b>身份证号</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="userId">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            地址
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>地址</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="address">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            身份证有效期
-                        </span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>身份证有效期</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="text" v-model="validity">
                         </span>
                     </li>
                     <li>
-                        <span class="item">
-                            联系电话
-                        </span>
+                        <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="text">
+                            <input type="number" v-model="phoneNum">
                         </span>
                     </li>
                     <li class="submit-li">
-                        <button class="submit">提交</button>
+                        <button class="submit" @click="toSubmit">提交</button>
                     </li>
                     <li>
                         <button class="later">跳过，稍后完善</button>
@@ -74,23 +72,52 @@
                     <li></li>
                 </ul>
             </div>
+            <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
         </div>
     </transition>
 </template>
 <script>
+import dialog from '../../base/dialog/dialog';
 export default {
     data() {
         return {
             imageFront: '',
-            imageReverse: ''
+            imageReverse: '',
+            isDialogShow:false,
+            dialogTit: '',
+            userName: '',
+            userId: '',
+            address: '',
+            validity: '',
+            phoneNum: ''
         }
     },
     created() {
         document.title = '完善信息';
     },
+    components: {
+        'v-dialog': dialog
+    },
     methods: {
-        back() {
-            this.$router.back();
+        toSubmit() {
+            if(this._checkRules(this.imageFront, '请上传身份证正面照')) return;
+            if(this._checkRules(this.imageReverse, '请上传身份证背面照')) return;
+            if(this._checkRules(this.userName, '请填写姓名')) return;
+            if(this._checkRules(this.userId, '请填写身份证号')){
+                return;
+            }else if(this.userId.length != 18){
+                setTimeout(() => {
+                    this.isDialogShow = true;
+                },100);
+                this.dialogTit = '请填写18位身份证号';
+                return;
+            }
+            if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+            //ajax...
+            this.isMarkShow = true;
+        },
+        onDelete(f){
+            this[f] = '';
         },
         addPicFront(e){
             e.preventDefault();
@@ -130,6 +157,16 @@ export default {
                 }
             };
         },
+        _checkRules(val, tit) {
+            let that = this;
+            if(val == ''){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = tit;
+                return true;
+            }
+        },
         uploadImage: function () {
             console.log(this.images);
             return false;
@@ -150,6 +187,15 @@ export default {
             //         }
             //     }
             //   });
+        }
+    },
+    watch: {
+        isDialogShow() {
+            if(this.isDialogShow) {
+                setTimeout(() => {
+                    this.isDialogShow = false
+                }, 2000);
+            }
         }
     }
 }
@@ -202,6 +248,10 @@ export default {
                             width: 35%;
                             font-size: 12px;
                             flex: 3;
+                            b{
+                                color: #f00;
+                                padding-right: 5px;
+                            }
                         }
                         &.item-value{
                             height: 100%;
@@ -228,6 +278,7 @@ export default {
                                 vertical-align: middle;
                             }
                             .img-wrapper{
+                                position: relative;
                                 width: 66px;
                                 height: 54px;
                                 margin-left: 10px;
@@ -235,6 +286,27 @@ export default {
                                 img{
                                     width: 100%;
                                     height: 100%;
+                                }
+                                .delete{
+                                    display: inline-block;
+                                    position: absolute;
+                                    width: 16px;
+                                    height: 16px;
+                                    background: #fff url(../../assets/close.png);
+                                    top: -6px;
+                                    right: -6px;
+                                }
+                                i{
+                                    position: absolute;
+                                    top: 0;
+                                    color: #000;
+                                    font-weight: bold;
+                                    width: 100%;
+                                    left: 0;
+                                    z-index: 99;
+                                    font-size: 14px;
+                                    font-style: normal;
+                                    text-align: center;
                                 }
                             }
                         }

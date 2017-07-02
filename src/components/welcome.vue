@@ -2,9 +2,6 @@
     <div class="welcome" ref="scrollWrapper">
         <div v-if="sliderData.length">
             <slider ref="slider" :loop="false" :bounce="false">
-                <!--<div class="slider-item" v-for="(item, index) in sliderData" :key="index">
-                    <img :src="item" alt="">
-                </div>-->
                 <div class="slider-item">
                     <img src="../assets/1.jpg" alt="">
                 </div>
@@ -13,7 +10,7 @@
                 </div>
                 <div class="slider-item">
                     <img src="../assets/3.jpg" alt="">
-                    <router-link to="/registerUser" tag="button" class="enter">欢迎</router-link>
+                    <router-link to="/registerUser" tag="button" class="enter" replace>欢迎</router-link>
                 </div>
             </slider>
         </div>

@@ -3,21 +3,26 @@
         <div class="register-user">
             <ul class="register-user-content">
                 <li>
-                    <input type="text" placeholder="请输入手机号" v-model="phoneNumber" @keyup="_checkPhoneNumber">
+                    <input type="text" placeholder="请输入手机号" v-model="phoneNumber" @blur="checkPhoneNumber">
+                    <span class="tip" v-show="tipPhone.isShow">{{tipPhone.text}}</span>
                 </li>
                 <li>
-                    <input type="text" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification">
+                    <input type="text" placeholder="请输入验证码" class="verification" v-model="verification" @blur="checkVerification">
                     <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
                     <div class="verification-btn disable" v-else>{{countdown}}s</div>
+                    <span class="tip" v-show="tipVerification.isShow">{{tipVerification.text}}</span>
                 </li>
                 <li>
-                    <input type="password" placeholder="请输入密码，至少六位" v-model="password" @keyup="_checkPassword">
+                    <input type="password" placeholder="请输入密码，至少六位" v-model="password" @blur="checkPassword">
+                    <span class="tip" v-show="tipPass.isShow">{{tipPass.text}}</span>
                 </li>
                 <li>
-                    <input type="password" placeholder="确认密码"  v-model="passwordAgain" @keyup="_checkPasswordAgain">
+                    <input type="password" placeholder="确认密码"  v-model="passwordAgain" @blur="checkPasswordAgain">
+                    <span class="tip" v-show="tipPassAgain.isShow">{{tipPassAgain.text}}</span>
                 </li>
                 <li>
-                    <input type="button" value="注册" class="register-btn" @click="toRegister">
+                    <input type="button" v-if="btnFlag" value="注册" class="register-btn" @click="toRegister">
+                    <input type="button" v-else value="注册" class="register-btn register-btn-disable">
                 </li>
                 <li>
                     <input type="checkbox" class="check" v-model="isCheck.state" @click="onCheck(isCheck)">
@@ -32,14 +37,8 @@
                 <div class="reg-classes" v-show="isMarkShow">
                     <h2>注册成功，请选择身份</h2>
                     <ul class="classes">
-                        <router-link to="/regPersonal" tag="li">
-                            <img src="./u44.png">
-                            <p>个人</p>
-                        </router-link>
-                        <router-link to="/regCompany" tag="li">
-                            <img src="./u49.png">
-                            <p>企业</p>
-                        </router-link>
+                        <router-link to="/regPersonal" tag="li">个人</router-link>
+                        <router-link to="/regCompany" tag="li">企业</router-link>
                     </ul>
                 </div>
             </transition>
@@ -53,6 +52,22 @@ import dialog from '../../base/dialog/dialog';
 export default {
   data() {
       return {
+          tipPhone:{
+              isShow: false,
+              text: ''
+          },
+          tipVerification: {
+              isShow: false,
+              text: ''
+          },
+          tipPass: {
+              isShow: false,
+              text: ''
+          },
+          tipPassAgain: {
+              isShow: false,
+              text: ''
+          },
           phoneNumber: '',
           verification: '',
           password: '',
@@ -63,12 +78,7 @@ export default {
           isMarkShow: false,
           isCheck: {state: true},
           isDialogShow:false,
-          dialogTit: '',
-          checkPhoneNumber:false,
-          checkVerification:false,
-          checkPasswordAgain:false,
-          checkPassword:false,
-          checkIsCheck:true
+          dialogTit: '密码不能为空'
       }
   },
     created() {
@@ -78,32 +88,24 @@ export default {
         
     },
     methods: {
-        _checkPhoneNumber() {
+        checkPhoneNumber() {
             let re = /^\d{11}$/;
-            this.checkPhoneNumber = false;
-            if(re.test(this.phoneNumber)){
-                this.checkPhoneNumber = true;
-            }
+            this.tipPhone.isShow = this._checkRules(this.phoneNumber, '手机号', re).isShow;
+            this.tipPhone.text = this._checkRules(this.phoneNumber, '手机号', re).text;
         },
-        _checkVerification() {
+        checkVerification() {
             let re = /^\d{4}$/;
-            this.checkVerification = false;
-            if(re.test(this.verification)){
-                this.checkVerification = true;
-            }
+            this.tipVerification.isShow = this._checkRules(this.verification, '验证码', re).isShow;
+            this.tipVerification.text = this._checkRules(this.verification, '验证码', re).text;
         },
-        _checkPassword() {
+        checkPassword() {
             let re = /^[a-zA-Z0-9]{6,}$/;
-            this.checkPassword = false;
-            if(re.test(this.password)){
-                this.checkPassword = true;
-            }
+            this.tipPass.isShow = this._checkRules(this.password, '密码', re).isShow;
+            this.tipPass.text = this._checkRules(this.password, '密码', re).text;
         },
-        _checkPasswordAgain() {
-            this.checkPasswordAgain = false;
-            if(this.password == this.passwordAgain){
-                this.checkPasswordAgain = true;
-            }
+        checkPasswordAgain() {
+            this.tipPassAgain.isShow = this._checkRules(this.passwordAgain, '密码', '', this.password).isShow;
+            this.tipPassAgain.text = this._checkRules(this.passwordAgain, '密码', '', this.password).text;
         },
         sendVerification() {
             this.timer = setInterval(() => {
@@ -117,53 +119,45 @@ export default {
             this.isMarkShow = false;
         },
         toRegister() {
+            this.isDialogShow = true;
             if(this.phoneNumber && this.verification && this.password && this.passwordAgain && this.isCheck.state){
-                if(!this.checkPhoneNumber){
-                    setTimeout(() => {
-                        this.isDialogShow = true;
-                    },100);
-                    this.dialogTit = '手机号填写错误';
-                    return;
-                }
-                if(!this.checkVerification){
-                    setTimeout(() => {
-                        this.isDialogShow = true;
-                    },100);
-                    this.dialogTit = '验证码填写错误';
-                    return;
-                }
-                if(!this.checkPassword){
-                    setTimeout(() => {
-                        this.isDialogShow = true;
-                    },100);
-                    this.dialogTit = '请输入六位以上密码';
-                    return;
-                }
-                if(!this.checkPasswordAgain){
-                    setTimeout(() => {
-                        this.isDialogShow = true;
-                    },100);
-                    this.dialogTit = '两次密码不一致';
-                    return;
-                }
-                if(!this.checkIsCheck){
-                    setTimeout(() => {
-                        this.isDialogShow = true;
-                    },100);
-                    this.dialogTit = '请阅读注册协议';
-                    return;
-                }
-                //ajax...
                 this.isMarkShow = true;
-            }else{
-                setTimeout(() => {
-                    this.isDialogShow = true;
-                },100);
-                this.dialogTit = '请填写完整信息';
             }
         },
         onCheck(isCheck) {
             isCheck.state = !isCheck.state;
+        },
+        _checkRules(val, tip, re, val2) {
+            if(val != ''){
+                if(re){
+                    if(!re.test(val)){
+                        return {
+                            isShow: true,
+                            text: `${tip}格式错误`
+                        }
+                    }else{
+                        return {
+                            isShow: false
+                        }
+                    }
+                }else{
+                    if(val != val2){
+                        return {
+                            isShow: true,
+                            text: `两次${tip}不一致`
+                        }
+                    }else{
+                        return {
+                            isShow: false
+                        }
+                    }
+                }
+            }else{
+                return {
+                    isShow: true,
+                    text: `${tip}不能为空`
+                }
+            }
         }
     },
     watch: {
@@ -180,19 +174,16 @@ export default {
             if(this.isDialogShow) {
                 setTimeout(() => {
                     this.isDialogShow = false
-                }, 1300);
-            }
-        },
-        password() {
-            if(this.password != this.passwordAgain){
-                this.checkPasswordAgain = false;
-            }else{
-                this.checkPasswordAgain = true;
+                }, 3000);
             }
         }
     },
     computed: {
-
+        btnFlag() {
+            if(!this.tipPhone.isShow && !this.tipVerification.isShow && !this.tipPass.isShow && !this.tipPassAgain.isShow && this.isCheck.state){
+                return true;
+            }
+        }
     },
     components: {
         'v-dialog': dialog
@@ -284,12 +275,6 @@ export default {
                 padding-top: 20px;
                 li{
                     flex: 1;
-                    text-align: center;
-                    img{
-                        width: 50px;
-                        height: 50px;
-                        margin-bottom: 14px;
-                    }
                 }
             }
         }
