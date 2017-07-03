@@ -10,6 +10,11 @@
                             <input type="file" @change="onFileLicenseChange" multiple style="display: none;" ref="onFileLicenseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageLicense">
                                 <img :src="imageLicense" alt="" >
+                                <b class="delete" @click="onDelete('imageLicense')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u230.png" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -34,7 +39,8 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="validity">
+                            <!--<input type="text" v-model="validity">-->
+                            <date-picker @sendDate="getvalidity"></date-picker>
                         </span>
                     </li>
                     <li class="input-img">
@@ -44,6 +50,11 @@
                             <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageFront">
                                 <img :src="imageFront" alt="" >
+                                <b class="delete" @click="onDelete('imageFront')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u111.png" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -54,6 +65,11 @@
                             <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageReverse">
                                 <img :src="imageReverse" alt="" >
+                                <b class="delete" @click="onDelete('imageReverse')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u125.jpg" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -78,7 +94,8 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="userIdValidity">
+                            <!--<input type="text" v-model="userIdValidity">-->
+                            <date-picker @sendDate="getuserIdValidity"></date-picker>
                         </span>
                     </li>
                     <li>
@@ -103,6 +120,7 @@
 <script>
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
+import datePicker from '../../base/datePicker/datePicker';
 export default {
     data() {
         return {
@@ -126,7 +144,8 @@ export default {
         document.title = '完善信息';
     },
     components: {
-        'v-dialog': dialog
+        'v-dialog': dialog,
+        datePicker
     },
     mounted() {
         this.$nextTick(() => {
@@ -151,6 +170,15 @@ export default {
                 return;
             }
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+        },
+        onDelete(f){
+            this[f] = '';
+        },
+        getuserIdValidity(val) {
+            this.userIdValidity = val;
+        },
+        getvalidity(val) {
+            this.validity = val;
         },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
@@ -312,6 +340,7 @@ export default {
                                 vertical-align: middle;
                             }
                             .img-wrapper{
+                                position: relative;
                                 width: 66px;
                                 height: 54px;
                                 margin-left: 10px;
@@ -319,6 +348,29 @@ export default {
                                 img{
                                     width: 100%;
                                     height: 100%;
+                                }
+                                .delete{
+                                    display: inline-block;
+                                    position: absolute;
+                                    width: 16px;
+                                    height: 16px;
+                                    background: #fff url(../../assets/delete.png);
+                                    background-size: cover;
+                                    border-radius: 50%;
+                                    top: -6px;
+                                    right: -6px;
+                                }
+                                i{
+                                    position: absolute;
+                                    top: 0;
+                                    color: #000;
+                                    font-weight: bold;
+                                    width: 100%;
+                                    left: 0;
+                                    z-index: 99;
+                                    font-size: 14px;
+                                    font-style: normal;
+                                    text-align: center;
                                 }
                             }
                         }

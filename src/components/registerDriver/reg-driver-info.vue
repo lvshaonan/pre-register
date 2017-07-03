@@ -10,6 +10,11 @@
                             <input type="file" @change="onCarFrontChange" multiple style="display: none;" ref="onCarFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageCarFront">
                                 <img :src="imageCarFront" alt="" >
+                                <b class="delete" @click="onDelete('imageCarFront')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u647.jpg" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -20,6 +25,11 @@
                             <input type="file" @change="onFileVehicleChange" multiple style="display: none;" ref="onFileVehicleChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageVehicle">
                                 <img :src="imageVehicle" alt="" >
+                                <b class="delete" @click="onDelete('imageVehicle')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u630.jpg" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -144,6 +154,9 @@ export default {
                 return true;
             }
         },
+        onDelete(f){
+            this[f] = '';
+        },
         createImage(file, flag) {
             if (typeof FileReader === 'undefined') {
                 alert('您的浏览器不支持图片上传，请升级您的浏览器');
@@ -247,6 +260,7 @@ export default {
                                 vertical-align: middle;
                             }
                             .img-wrapper{
+                                position: relative;
                                 width: 66px;
                                 height: 54px;
                                 margin-left: 10px;
@@ -254,6 +268,29 @@ export default {
                                 img{
                                     width: 100%;
                                     height: 100%;
+                                }
+                                .delete{
+                                    display: inline-block;
+                                    position: absolute;
+                                    width: 16px;
+                                    height: 16px;
+                                    background: #fff url(../../assets/delete.png);
+                                    background-size: cover;
+                                    border-radius: 50%;
+                                    top: -6px;
+                                    right: -6px;
+                                }
+                                i{
+                                    position: absolute;
+                                    top: 0;
+                                    color: #000;
+                                    font-weight: bold;
+                                    width: 100%;
+                                    left: 0;
+                                    z-index: 99;
+                                    font-size: 14px;
+                                    font-style: normal;
+                                    text-align: center;
                                 }
                             }
                         }

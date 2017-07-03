@@ -10,6 +10,11 @@
                             <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageFront">
                                 <img :src="imageFront" alt="" >
+                                <b class="delete" @click="onDelete('imageFront')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u111.png" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -20,6 +25,11 @@
                             <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageReverse">
                                 <img :src="imageReverse" alt="" >
+                                <b class="delete" @click="onDelete('imageReverse')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u125.jpg" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -44,7 +54,8 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="userIdvalidity">
+                            <!--<input type="text" v-model="userIdvalidity">-->
+                            <date-picker @sendDate="getuserIdvalidity"></date-picker>
                         </span>
                     </li>
                     <li>
@@ -60,6 +71,11 @@
                             <input type="file" @change="onBusinessLicenseChange" multiple style="display: none;" ref="onBusinessLicenseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageBusinessLicense">
                                 <img :src="imageBusinessLicense" alt="" >
+                                <b class="delete" @click="onDelete('imageBusinessLicense')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u230.png" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -90,7 +106,8 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="yingyeValidity">
+                            <!--<input type="text" v-model="yingyeValidity">-->
+                            <date-picker @sendDate="getyingyeValidity"></date-picker>
                         </span>
                     </li>
                     <li class="input-img">
@@ -100,6 +117,11 @@
                             <input type="file" @change="onFileDangerousChange" multiple style="display: none;" ref="onFileDangerousChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageDangerous">
                                 <img :src="imageDangerous" alt="" >
+                                <b class="delete" @click="onDelete('imageDangerous')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u830.jpg" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -112,7 +134,8 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="DangerousValidity">
+                            <!--<input type="text" v-model="DangerousValidity">-->
+                            <date-picker @sendDate="getDangerousValidity"></date-picker>
                         </span>
                     </li>
                     <li>
@@ -128,6 +151,11 @@
                             <input type="file" @change="onFileRoadChange" multiple style="display: none;" ref="onFileRoadChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageRoad">
                                 <img :src="imageRoad" alt="" >
+                                <b class="delete" @click="onDelete('imageRoad')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u847.jpg" alt="" >
+                                <i>示例照片</i>
                             </span>
                         </span>
                     </li>
@@ -140,7 +168,8 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="RoadValidity">
+                            <!--<input type="text" v-model="RoadValidity">-->
+                            <date-picker @sendDate="getRoadValidity"></date-picker>
                         </span>
                     </li>
                     <li>
@@ -165,6 +194,7 @@
 <script>
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
+import datePicker from '../../base/datePicker/datePicker';
 export default {
     data() {
         return {
@@ -202,7 +232,8 @@ export default {
         });
     },
     components: {
-        'v-dialog': dialog
+        'v-dialog': dialog,
+        datePicker
     },
     watch: {
         isDialogShow() {
@@ -235,10 +266,25 @@ export default {
             if(this._checkRules(this.imageRoad, '请上传道路运输许可证')) return;
             //ajax...
         },
+        getDangerousValidity(val) {
+            this.DangerousValidity = val;
+        },
+        getuserIdvalidity(val) {
+            this.userIdvalidity = val;
+        },
+        getyingyeValidity(val) {
+            this.yingyeValidity = val;
+        },
+        getRoadValidity(val) {
+            this.RoadValidity = val;
+        },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
                 click: true
             });
+        },
+        onDelete(f){
+            this[f] = '';
         },
         addBusinessLicense(e){
             e.preventDefault();
@@ -409,6 +455,7 @@ export default {
                                 vertical-align: middle;
                             }
                             .img-wrapper{
+                                position: relative;
                                 width: 66px;
                                 height: 54px;
                                 margin-left: 10px;
@@ -416,6 +463,29 @@ export default {
                                 img{
                                     width: 100%;
                                     height: 100%;
+                                }
+                                .delete{
+                                    display: inline-block;
+                                    position: absolute;
+                                    width: 16px;
+                                    height: 16px;
+                                    background: #fff url(../../assets/delete.png);
+                                    background-size: cover;
+                                    border-radius: 50%;
+                                    top: -6px;
+                                    right: -6px;
+                                }
+                                i{
+                                    position: absolute;
+                                    top: 0;
+                                    color: #000;
+                                    font-weight: bold;
+                                    width: 100%;
+                                    left: 0;
+                                    z-index: 99;
+                                    font-size: 14px;
+                                    font-style: normal;
+                                    text-align: center;
                                 }
                             }
                         }

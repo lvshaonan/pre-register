@@ -8,7 +8,11 @@
 
 <script>
 export default {
-  name: 'app'
+  name: 'app',
+  mounted() {
+    console.log(this.$route.query);
+    // alert(this.$route.query.phone);
+  }
 }
 </script>
 

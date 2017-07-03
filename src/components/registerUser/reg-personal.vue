@@ -54,7 +54,7 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>身份证有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="validity">
+                            <date-picker @sendDate="getValidity"></date-picker>
                         </span>
                     </li>
                     <li>
@@ -78,6 +78,7 @@
 </template>
 <script>
 import dialog from '../../base/dialog/dialog';
+import datePicker from '../../base/datePicker/datePicker';
 export default {
     data() {
         return {
@@ -96,7 +97,8 @@ export default {
         document.title = '完善信息';
     },
     components: {
-        'v-dialog': dialog
+        'v-dialog': dialog,
+        datePicker
     },
     methods: {
         toSubmit() {
@@ -115,6 +117,9 @@ export default {
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
             //ajax...
             this.isMarkShow = true;
+        },
+        getValidity(val) {
+            this.validity = val;
         },
         onDelete(f){
             this[f] = '';
@@ -292,7 +297,9 @@ export default {
                                     position: absolute;
                                     width: 16px;
                                     height: 16px;
-                                    background: #fff url(../../assets/close.png);
+                                    background: #fff url(../../assets/delete.png);
+                                    background-size: cover;
+                                    border-radius: 50%;
                                     top: -6px;
                                     right: -6px;
                                 }

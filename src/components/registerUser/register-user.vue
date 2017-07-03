@@ -45,11 +45,13 @@
             </transition>
             <div class="mark" v-show="isMarkShow" @click="MarkHide"></div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
+            <loading v-show="isSubmitSuccess"></loading>
         </div>
     </transition>
 </template>
 <script>
 import dialog from '../../base/dialog/dialog';
+import loading from '../../base/loading/loading';
 export default {
   data() {
       return {
@@ -68,7 +70,8 @@ export default {
           checkVerification:false,
           checkPasswordAgain:false,
           checkPassword:false,
-          checkIsCheck:true
+          checkIsCheck:true,
+          isSubmitSuccess: false
       }
   },
     created() {
@@ -154,7 +157,11 @@ export default {
                     return;
                 }
                 //ajax...
-                this.isMarkShow = true;
+                this.isSubmitSuccess = true;
+                setTimeout(() => {
+                    this.isSubmitSuccess = false;
+                    this.isMarkShow = true;
+                }, 2000);
             }else{
                 setTimeout(() => {
                     this.isDialogShow = true;
@@ -195,7 +202,8 @@ export default {
 
     },
     components: {
-        'v-dialog': dialog
+        'v-dialog': dialog,
+        loading
     }
 }
 </script>
