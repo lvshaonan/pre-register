@@ -13,6 +13,9 @@ import regDriver from '@/components/registerDriver/reg-driver'
 import regDriverPersonal from '@/components/registerDriver/reg-driver-personal'
 import regDriverTeam from '@/components/registerDriver/reg-driver-team'
 import regDriverInfo from '@/components/registerDriver/reg-driver-info'
+import vehicleType from '@/components/registerDriver/vehicle-type'
+import productMedia from '@/components/registerDriver/product-media'
+import enterpriseInfo from '@/components/registerDriver/enterprise-info'
 Vue.use(Router)
 
 export default new Router({
@@ -61,6 +64,11 @@ export default new Router({
       path: '/regDriverInfo',
       name: 'regDriverInfo',
       component: regDriverInfo
+    },
+    {
+      path: '/enterpriseInfo',
+      name: 'enterpriseInfo',
+      component: enterpriseInfo
     }
   ]
 })

@@ -1,56 +1,61 @@
 <template>
-  <div class="register-user">
-      <ul class="register-user-content">
-        <li>
-            <input type="text" placeholder="请输入手机号" v-model="phoneNumber" @keyup="_checkPhoneNumber">
-        </li>
-        <li>
-            <input type="text" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification">
-            <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
-            <div class="verification-btn disable" v-else>{{countdown}}s</div>
-        </li>
-        <li>
-            <input type="password" placeholder="请输入密码，至少六位" v-model="password" @keyup="_checkPassword">
-        </li>
-        <li>
-            <input type="password" placeholder="确认密码"  v-model="passwordAgain" @keyup="_checkPasswordAgain">
-        </li>
-        <li>
-            <input type="button" value="我有车，我要成为小黑师傅司机" class="register-btn" @click="toRegister">
-        </li>
-        <li>
-            <input type="checkbox" class="check" v-model="isCheck.state" @click="onCheck(isCheck)">
-            <span class="check-text">
-                已同意
-                <router-link to="/regAgreement">《小黑师傅》</router-link>
-                注册协议
-            </span>
-        </li>
-      </ul>
-      <transition name="fadea">
-        <div class="reg-classes" v-show="isMarkShow">
-            <h2>注册成功，请选择身份</h2>
-            <ul class="classes">
-                <router-link to="/regDriverPersonal" tag="li">
-                    <img src="./u409.png">
-                    <p>司机</p>
-                </router-link>
-                <router-link to="/regDriverTeam" tag="li">
-                    <img src="./u414.png">
-                    <p>车队</p>
-                </router-link>
+    <transition name="slider">
+        <div class="register-user">
+            <ul class="register-user-content">
+                <li>
+                    <input type="number" placeholder="请输入手机号" v-model="phoneNumber" @keyup="_checkPhoneNumber">
+                </li>
+                <li>
+                    <input type="number" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification">
+                    <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
+                    <div class="verification-btn disable" v-else>{{countdown}}s</div>
+                </li>
+                <li>
+                    <input type="password" placeholder="请输入密码，至少六位" v-model="password" @keyup="_checkPassword">
+                </li>
+                <li>
+                    <input type="password" placeholder="确认密码"  v-model="passwordAgain" @keyup="_checkPasswordAgain">
+                </li>
+                <li>
+                    <input type="button" value="我有车，我要成为小黑师傅司机" class="register-btn" @click="toRegister">
+                </li>
+                <li>
+                    <input type="checkbox" class="check" v-model="isCheck.state" @click="onCheck(isCheck)">
+                    <span class="check-text">
+                        已同意
+                        <router-link to="/regAgreement">《小黑师傅》</router-link>
+                        注册协议
+                    </span>
+                </li>
             </ul>
+            <transition name="fadea">
+                <div class="reg-classes" v-show="isMarkShow">
+                    <h2>注册成功，请选择身份</h2>
+                    <ul class="classes">
+                        <router-link to="/regDriverPersonal" tag="li">
+                            <img src="./u409.png">
+                            <p>司机</p>
+                        </router-link>
+                        <router-link to="/regDriverTeam" tag="li">
+                            <img src="./u414.png">
+                            <p>车队</p>
+                        </router-link>
+                    </ul>
+                </div>
+            </transition>
+            <div class="mark" v-show="isMarkShow" @click="MarkHide"></div>
+            <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
+            <loading v-show="isSubmitSuccess"></loading>
         </div>
-      </transition>
-      <div class="mark" v-show="isMarkShow" @click="MarkHide"></div>
-      <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
-  </div>
+    </transition>
 </template>
 <script>
 import dialog from '../../base/dialog/dialog';
+import loading from '../../base/loading/loading';
 export default {
   data() {
       return {
+          isSubmitSuccess: false,
           phoneNumber: '',
           verification: '',
           password: '',
@@ -149,7 +154,11 @@ export default {
                     return;
                 }
                 //ajax...
-                this.isMarkShow = true;
+                this.isSubmitSuccess = true;
+                setTimeout(() => {
+                    this.isSubmitSuccess = false;
+                    this.isMarkShow = true;
+                }, 2000);
             }else{
                 setTimeout(() => {
                     this.isDialogShow = true;
@@ -189,11 +198,18 @@ export default {
     computed: {
     },
     components: {
-        'v-dialog': dialog
+        'v-dialog': dialog,
+        loading
     }
 }
 </script>
 <style lang="scss" scoped>
+    .slider-enter, .slider-leave-to{
+        transform: translate3d(100%, 0, 0);
+    }
+    .slider-enter-active, .slider-leave-active{
+        transition: all 0.2s;
+    }
     .register-user{
         .register-user-content{
             padding-top: 28px;

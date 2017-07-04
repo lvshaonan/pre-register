@@ -33,7 +33,6 @@
                             </span>
                         </span>
                     </li>
-                    
                     <li>
                         <span class="item"><b>&lowast;</b>车牌号</span>
                         <span class="item-value">
@@ -58,24 +57,50 @@
                             <input type="text" v-model="identifyCode">
                         </span>
                     </li>
+                    <li>
+                        <span class="item"><b>&lowast;</b>车辆类型</span>
+                        <span class="item-value input-short">
+                            <input type="text" v-model="vehicleType">
+                            <i class="tap-btn" @click="vehicleTypeShow">
+                                <b></b>
+                            </i>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&lowast;</b>产品介质</span>
+                        <span class="item-value input-short">
+                            <input type="text" v-model="medium">
+                            <i @click="productMediaShow" class="tap-btn">
+                                <b></b>
+                            </i>
+                        </span>
+                    </li>
                     <li class="next">
                         <button>跳过并提交</button>
                     </li>
                     <li>
                         <button @click="toSubmit">提交</button>
                     </li>
+                    <li></li>
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
+            <vehicle-type v-show="isVehicleTypeShow" @vehicleType="getVehicleType"></vehicle-type>
+            <product-edia v-show="isProductMediaShow" @productMedia="getProductMedia"></product-edia>
+            <loading v-show="isSubmitSuccess"></loading>
         </div>
     </transition>
 </template>
 <script>
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
+import vehicleType from './vehicle-type';
+import productMedia from './product-media';
+import loading from '../../base/loading/loading';
 export default {
     data() {
         return {
+            isSubmitSuccess:false,
             isDialogShow:false,
             dialogTit: '',
             imageCarFront: '',
@@ -84,6 +109,10 @@ export default {
             ownerName: '',
             engineNum: '',
             identifyCode: '',
+            vehicleType: '',
+            medium: '',
+            isProductMediaShow: false,
+            isVehicleTypeShow: false
         }
     },
     created() {
@@ -95,7 +124,10 @@ export default {
         });
     },
     components: {
-        'v-dialog': dialog
+        'v-dialog': dialog,
+        vehicleType,
+        'product-edia': productMedia,
+        loading
     },
     watch: {
         isDialogShow() {
@@ -103,6 +135,20 @@ export default {
                 setTimeout(() => {
                     this.isDialogShow = false
                 }, 2000);
+            }
+        },
+        isProductMediaShow(){
+            if(this.isProductMediaShow){
+                document.title = '产品介质';
+            }else{
+                document.title = '司机认证';
+            }
+        },
+        isVehicleTypeShow(){
+            if(this.isVehicleTypeShow){
+                document.title = '车辆类型';
+            }else{
+                document.title = '司机认证';
             }
         }
     },
@@ -113,6 +159,27 @@ export default {
             if(this._checkRules(this.plateNum, '请填写车牌号')) return;
             if(this._checkRules(this.ownerName, '请填写所有人姓名')) return;
             if(this._checkRules(this.engineNum, '请填写发动机号')) return;
+            if(this._checkRules(this.vehicleType, '请填写车辆类型')) return;
+            if(this._checkRules(this.medium, '请填写产品介质')) return;
+            this.isSubmitSuccess = true;
+            setTimeout(() => {
+                this.isSubmitSuccess = false;
+                this.$router.push("/regDriverInfo");
+            }, 2000);
+        },
+        vehicleTypeShow() {
+            this.isVehicleTypeShow = true;
+        },
+        productMediaShow() {
+            this.isProductMediaShow = true;
+        },
+        getVehicleType(val) {
+            this.isVehicleTypeShow = val.isShow;
+            this.vehicleType = val.typeVal;
+        },
+        getProductMedia(val) {
+            this.isProductMediaShow = val.isShow;
+            this.medium = val.value;
         },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
@@ -240,6 +307,7 @@ export default {
                             height: 100%;
                             width: 64%;
                             flex: 7;
+                            position: relative;
                             input{
                                 width: 100%;
                                 height: 100%;
@@ -258,6 +326,24 @@ export default {
                                 display: inline-block;
                                 font-size: 24px;
                                 vertical-align: middle;
+                            }
+                            .tap-btn{
+                                height: 40px;
+                                width: 40px;
+                                position: absolute;
+                                display: block;
+                                top: 0;
+                                right: 0;
+                            }
+                            b{
+                                position: absolute;
+                                display: block;
+                                right: 8px;
+                                width: 24px;
+                                height: 24px;
+                                background: url(./next.png) no-repeat;
+                                background-size: cover;
+                                top: 8px;
                             }
                             .img-wrapper{
                                 position: relative;
@@ -292,6 +378,7 @@ export default {
                                     font-style: normal;
                                     text-align: center;
                                 }
+                                
                             }
                         }
                     }
@@ -308,6 +395,13 @@ export default {
                     }
                     &.next{
                         padding-top: 20px;
+                    }
+                    .input-short{
+                        border: 1px solid #dfdfdf;
+                        input{
+                            width: 80% !important;
+                            border: none !important;
+                        }
                     }
                 }
             }

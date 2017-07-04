@@ -54,151 +54,36 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <!--<input type="text" v-model="userIdvalidity">-->
                             <date-picker @sendDate="getuserIdvalidity"></date-picker>
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="text" v-model="phoneNum">
-                        </span>
-                    </li>
-                    <li class="input-img">
-                        <span class="item"><b>&lowast;</b>营业执照</span>
-                        <span class="item-value">
-                            <a href="javascript:" class="input-img-btn" v-on:click="addBusinessLicense">+</a>
-                            <input type="file" @change="onBusinessLicenseChange" multiple style="display: none;" ref="onBusinessLicenseChange" accept="image/*">
-                            <span class="img-wrapper" v-if="imageBusinessLicense">
-                                <img :src="imageBusinessLicense" alt="" >
-                                <b class="delete" @click="onDelete('imageBusinessLicense')"></b>
-                            </span>
-                            <span class="img-wrapper" v-else>
-                                <img src="./u230.png" alt="" >
-                                <i>示例照片</i>
-                            </span>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&lowast;</b>公司名称</span>
-                        <span class="item-value">
-                            <input type="text" v-model="companyName">
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&lowast;</b>营业执照编码</span>
-                        <span class="item-value">
-                            <input type="text" v-model="licenseCode">
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>法人姓名</span>
-                        <span class="item-value">
-                            <input type="text" v-model="legalPerson">
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>公司地址</span>
-                        <span class="item-value">
-                            <input type="text" v-model="companyAddress">
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
-                        <span class="item-value">
-                            <!--<input type="text" v-model="yingyeValidity">-->
-                            <date-picker @sendDate="getyingyeValidity"></date-picker>
-                        </span>
-                    </li>
-                    <li class="input-img">
-                        <span class="item"><b>&lowast;</b>危险品运输许可证</span>
-                        <span class="item-value">
-                            <a href="javascript:" class="input-img-btn" v-on:click="addDangerous">+</a>
-                            <input type="file" @change="onFileDangerousChange" multiple style="display: none;" ref="onFileDangerousChange" accept="image/*">
-                            <span class="img-wrapper" v-if="imageDangerous">
-                                <img :src="imageDangerous" alt="" >
-                                <b class="delete" @click="onDelete('imageDangerous')"></b>
-                            </span>
-                            <span class="img-wrapper" v-else>
-                                <img src="./u830.jpg" alt="" >
-                                <i>示例照片</i>
-                            </span>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>公司名称</span>
-                        <span class="item-value">
-                            <input type="text" v-model="DangerousCompanyName">
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
-                        <span class="item-value">
-                            <!--<input type="text" v-model="DangerousValidity">-->
-                            <date-picker @sendDate="getDangerousValidity"></date-picker>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>危险品运输许可证号</span>
-                        <span class="item-value">
-                            <input type="text" v-model="DangerousCode">
-                        </span>
-                    </li>
-                    <li class="input-img">
-                        <span class="item"><b>&lowast;</b>道路运输许可证</span>
-                        <span class="item-value">
-                            <a href="javascript:" class="input-img-btn" v-on:click="addRoad">+</a>
-                            <input type="file" @change="onFileRoadChange" multiple style="display: none;" ref="onFileRoadChange" accept="image/*">
-                            <span class="img-wrapper" v-if="imageRoad">
-                                <img :src="imageRoad" alt="" >
-                                <b class="delete" @click="onDelete('imageRoad')"></b>
-                            </span>
-                            <span class="img-wrapper" v-else>
-                                <img src="./u847.jpg" alt="" >
-                                <i>示例照片</i>
-                            </span>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>公司名称</span>
-                        <span class="item-value">
-                            <input type="text" v-model="RoadCompanyName">
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
-                        <span class="item-value">
-                            <!--<input type="text" v-model="RoadValidity">-->
-                            <date-picker @sendDate="getRoadValidity"></date-picker>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>道路运输许可证号</span>
-                        <span class="item-value">
-                            <input type="text" v-model="RoadCode">
+                            <input type="number" v-model="phoneNum">
                         </span>
                     </li>
                     <li class="submit-li">
-                        <button class="submit" @click="toSubmit">提交</button>
-                    </li>
-                    <li>
-                        <button class="later">跳过，稍后完善</button>
+                        <button class="submit" @click="toSubmit">下一步</button>
                     </li>
                     <li></li>
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
+            <loading v-show="isLoadingShow"></loading>
         </div>
     </transition>
 </template>
 <script>
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
+import loading from '../../base/loading/loading';
 import datePicker from '../../base/datePicker/datePicker';
 export default {
     data() {
         return {
             isDialogShow:false,
+            isLoadingShow: false,
             dialogTit: '',
             imageFront: '',
             imageReverse: '',
@@ -211,16 +96,7 @@ export default {
             name: '',
             userId: '',
             address: '',
-            phoneNum: '',
-            userIdvalidity: '',
-            companyAddress: '',
-            yingyeValidity: '',
-            DangerousCode: '',
-            RoadCompanyName: '',
-            RoadValidity: '',
-            RoadCode: '',
-            DangerousCompanyName: '',
-            DangerousValidity: ''
+            phoneNum: ''
         }
     },
     created() {
@@ -233,6 +109,7 @@ export default {
     },
     components: {
         'v-dialog': dialog,
+        loading,
         datePicker
     },
     watch: {
@@ -259,12 +136,12 @@ export default {
                 return;
             }
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
-            if(this._checkRules(this.imageBusinessLicense, '请上传营业执照')) return;
-            if(this._checkRules(this.companyName, '请填写公司名称')) return;
-            if(this._checkRules(this.licenseCode, '请填写营业执照编码')) return;
-            if(this._checkRules(this.imageDangerous, '请上传危险品运输许可证')) return;
-            if(this._checkRules(this.imageRoad, '请上传道路运输许可证')) return;
             //ajax...
+            this.isLoadingShow = true;
+            setTimeout(() => {
+                this.isLoadingShow = false;
+                this.$router.push('/enterpriseInfo');
+            }, 1500);
         },
         getDangerousValidity(val) {
             this.DangerousValidity = val;

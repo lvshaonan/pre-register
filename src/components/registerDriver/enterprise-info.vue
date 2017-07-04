@@ -4,107 +4,111 @@
             <div class="reg-personal-content" ref="scrollWrapper">
                 <ul>
                     <li class="input-img">
-                        <span class="item"><b>&lowast;</b>身份证正面照</span>
+                        <span class="item"><b>&lowast;</b>营业执照</span>
                         <span class="item-value">
-                            <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
-                            <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
-                            <span class="img-wrapper" v-if="imageFront">
-                                <img :src="imageFront" alt="" >
-                                <b class="delete" @click="onDelete('imageFront')"></b>
+                            <a href="javascript:" class="input-img-btn" v-on:click="addBusinessLicense">+</a>
+                            <input type="file" @change="onBusinessLicenseChange" multiple style="display: none;" ref="onBusinessLicenseChange" accept="image/*">
+                            <span class="img-wrapper" v-if="imageBusinessLicense">
+                                <img :src="imageBusinessLicense" alt="" >
+                                <b class="delete" @click="onDelete('imageBusinessLicense')"></b>
                             </span>
                             <span class="img-wrapper" v-else>
-                                <img src="./u111.png" alt="" >
+                                <img src="./u230.png" alt="" >
                                 <i>示例照片</i>
                             </span>
                         </span>
                     </li>
-                    <li class="input-img">
-                        <span class="item"><b>&lowast;</b>身份证反面照</span>
-                        <span class="item-value">
-                            <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
-                            <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
-                            <span class="img-wrapper" v-if="imageReverse">
-                                <img :src="imageReverse" alt="" >
-                                <b class="delete" @click="onDelete('imageReverse')"></b>
-                            </span>
-                            <span class="img-wrapper" v-else>
-                                <img src="./u125.jpg" alt="" >
-                                <i>示例照片</i>
-                            </span>
-                        </span>
-                    </li>
-                    
                     <li>
-                        <span class="item"><b>&lowast;</b>姓名</span>
+                        <span class="item"><b>&lowast;</b>公司名称</span>
                         <span class="item-value">
-                            <input type="text" v-model="name">
+                            <input type="text" v-model="companyName">
                         </span>
                     </li>
                     <li>
-                        <span class="item"><b>&lowast;</b>身份证号</span>
+                        <span class="item"><b>&lowast;</b>营业执照编码</span>
                         <span class="item-value">
-                            <input type="text" v-model="userId">
+                            <input type="text" v-model="licenseCode">
                         </span>
                     </li>
                     <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>地址</span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>法人姓名</span>
                         <span class="item-value">
-                            <input type="text" v-model="address">
+                            <input type="text" v-model="legalPerson">
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>公司地址</span>
+                        <span class="item-value">
+                            <input type="text" v-model="companyAddress">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <date-picker @sendDate="getValidity"></date-picker>
-                        </span>
-                    </li>
-                    <li>
-                        <span class="item"><b>&lowast;</b>联系电话</span>
-                        <span class="item-value">
-                            <input type="number" v-model="phoneNum">
+                            <date-picker @sendDate="getyingyeValidity"></date-picker>
                         </span>
                     </li>
                     <li class="input-img">
-                        <span class="item"><b>&lowast;</b>驾驶证正面照</span>
+                        <span class="item"><b>&lowast;</b>危险品运输许可证</span>
                         <span class="item-value">
-                            <a href="javascript:" class="input-img-btn" v-on:click="addLicense">+</a>
-                            <input type="file" @change="onFileLicenseChange" multiple style="display: none;" ref="onFileLicenseChange" accept="image/*">
-                            <span class="img-wrapper" v-if="imageLicense">
-                                <img :src="imageLicense" alt="" >
-                                <b class="delete" @click="onDelete('imageLicense')"></b>
+                            <a href="javascript:" class="input-img-btn" v-on:click="addDangerous">+</a>
+                            <input type="file" @change="onFileDangerousChange" multiple style="display: none;" ref="onFileDangerousChange" accept="image/*">
+                            <span class="img-wrapper" v-if="imageDangerous">
+                                <img :src="imageDangerous" alt="" >
+                                <b class="delete" @click="onDelete('imageDangerous')"></b>
                             </span>
                             <span class="img-wrapper" v-else>
-                                <img src="./u499.jpg" alt="" >
+                                <img src="./u830.jpg" alt="" >
                                 <i>示例照片</i>
                             </span>
                         </span>
                     </li>
                     <li>
-                        <span class="item"><b>&lowast;</b>准驾车型</span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <input type="text" v-model="drivingLicenceCar">
+                            <date-picker @sendDate="getDangerousValidity"></date-picker>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="item"><b>&nbsp;&nbsp;</b>危险品运输许可证号</span>
+                        <span class="item-value">
+                            <input type="text" v-model="DangerousCode">
+                        </span>
+                    </li>
+                    <li class="input-img">
+                        <span class="item"><b>&lowast;</b>道路运输许可证</span>
+                        <span class="item-value">
+                            <a href="javascript:" class="input-img-btn" v-on:click="addRoad">+</a>
+                            <input type="file" @change="onFileRoadChange" multiple style="display: none;" ref="onFileRoadChange" accept="image/*">
+                            <span class="img-wrapper" v-if="imageRoad">
+                                <img :src="imageRoad" alt="" >
+                                <b class="delete" @click="onDelete('imageRoad')"></b>
+                            </span>
+                            <span class="img-wrapper" v-else>
+                                <img src="./u847.jpg" alt="" >
+                                <i>示例照片</i>
+                            </span>
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <date-picker @sendDate="getDrivingLicenceValidity"></date-picker>
+                            <date-picker @sendDate="getRoadValidity"></date-picker>
                         </span>
                     </li>
                     <li>
-                        <span class="item"><b>&nbsp;&nbsp;</b>所属车队</span>
+                        <span class="item"><b>&nbsp;&nbsp;</b>道路运输许可证号</span>
                         <span class="item-value">
-                            <input type="text" v-model="team">
+                            <input type="text" v-model="RoadCode">
                         </span>
                     </li>
-                    <li class="next">
-                        <button @click="toNext">下一步</button>
+                    <li class="submit-li">
+                        <button class="submit" @click="toSubmit">提交</button>
                     </li>
                     <li></li>
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
-            <loading v-show="isSubmitSuccess"></loading>
         </div>
     </transition>
 </template>
@@ -112,38 +116,42 @@
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
 import datePicker from '../../base/datePicker/datePicker';
-import loading from '../../base/loading/loading';
 export default {
     data() {
         return {
-            isSubmitSuccess: false,
-            imageFront: '',
-            imageReverse: '',
-            imageLicense: '',
+            isDialogShow:false,
+            dialogTit: '',
+            imageBusinessLicense: '',
+            imageDangerous: '',
+            imageRoad: '',
+            companyName: '',
+            licenseCode: '',
+            legalPerson: '',
             name: '',
             userId: '',
             address: '',
-            validity: '',
             phoneNum: '',
-            drivingLicenceCar: '',
-            drivingLicenceValidity: '',
-            team: '',
-            isDialogShow:false,
-            dialogTit: '',
+            userIdvalidity: '',
+            companyAddress: '',
+            yingyeValidity: '',
+            DangerousCode: '',
+            RoadCompanyName: '',
+            RoadValidity: '',
+            RoadCode: '',
+            DangerousValidity: ''
         }
     },
     created() {
-        document.title = '司机认证';
-    },
-    components: {
-        'v-dialog': dialog,
-        datePicker,
-        loading
+        document.title = '车队认证';
     },
     mounted() {
         this.$nextTick(() => {
             this._initScroll();
         });
+    },
+    components: {
+        'v-dialog': dialog,
+        datePicker
     },
     watch: {
         isDialogShow() {
@@ -155,46 +163,37 @@ export default {
         }
     },
     methods: {
-        toNext() {
-            if(this._checkRules(this.imageFront, '请上传身份证正面照')) return;
-            if(this._checkRules(this.imageReverse, '请上传身份证背面照')) return;
-            if(this._checkRules(this.name, '请填写姓名')) return;
-            if(this._checkRules(this.userId, '请填写身份证号')){
-                return;
-            }else if(this.userId.length != 18){
-                setTimeout(() => {
-                    this.isDialogShow = true;
-                },100);
-                this.dialogTit = '请填写18位身份证号';
-                return;
-            }
-            if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
-            if(this._checkRules(this.imageLicense, '请上传驾驶证正面照')) return;
-            if(this._checkRules(this.drivingLicenceCar, '请填写准驾车型')) return;
+        toSubmit() {
+            if(this._checkRules(this.imageBusinessLicense, '请上传营业执照')) return;
+            if(this._checkRules(this.companyName, '请填写公司名称')) return;
+            if(this._checkRules(this.licenseCode, '请填写营业执照编码')) return;
+            if(this._checkRules(this.imageDangerous, '请上传危险品运输许可证')) return;
+            if(this._checkRules(this.imageRoad, '请上传道路运输许可证')) return;
             //ajax...
-            this.isSubmitSuccess = true;
-            setTimeout(() => {
-                this.isSubmitSuccess = false;
-                this.$router.push("/regDriverInfo");
-            }, 2000);
         },
-        onDelete(f){
-            this[f] = '';
+        getDangerousValidity(val) {
+            this.DangerousValidity = val;
         },
-        getValidity(val) {
-            this.validity = val;
+        getuserIdvalidity(val) {
+            this.userIdvalidity = val;
         },
-        getDrivingLicenceValidity(val) {
-            this.drivingLicenceValidity = val;
+        getyingyeValidity(val) {
+            this.yingyeValidity = val;
+        },
+        getRoadValidity(val) {
+            this.RoadValidity = val;
         },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
                 click: true
             });
         },
-        addLicense(e){
+        onDelete(f){
+            this[f] = '';
+        },
+        addBusinessLicense(e){
             e.preventDefault();
-            this.$refs.onFileLicenseChange.click();
+            this.$refs.onBusinessLicenseChange.click();
             return false;
         },
         addPicFront(e){
@@ -207,10 +206,20 @@ export default {
             this.$refs.onFileReverseChange.click();
             return false;
         },
-        onFileLicenseChange(e) {
+        addDangerous(e) {
+            e.preventDefault();
+            this.$refs.onFileDangerousChange.click();
+            return false;
+        },
+        addRoad(e){
+            e.preventDefault();
+            this.$refs.onFileRoadChange.click();
+            return false;
+        },
+        onBusinessLicenseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'license');
+            this.createImage(files, 'BusinessLicense');
         },
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -221,6 +230,16 @@ export default {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
             this.createImage(files, 'reverse');
+        },
+        onFileDangerousChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+            this.createImage(files, 'dangerous');
+        },
+        onFileRoadChange(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length) return;
+            this.createImage(files, 'road');
         },
         _checkRules(val, tit) {
             let that = this;
@@ -247,8 +266,12 @@ export default {
                     that.imageFront = e.target.result;
                 }else if(flag == 'reverse'){
                     that.imageReverse = e.target.result;
-                }else if(flag == 'license'){
-                    that.imageLicense = e.target.result;
+                }else if(flag == 'BusinessLicense'){
+                    that.imageBusinessLicense = e.target.result;
+                }else if(flag == 'dangerous'){
+                    that.imageDangerous = e.target.result;
+                }else if(flag == 'road'){
+                    that.imageRoad = e.target.result;
                 }
             };
         },
@@ -307,7 +330,7 @@ export default {
                         &.item{
                             width: 35%;
                             font-size: 12px;
-                            flex: 3;
+                            flex: 3.6;
                             b{
                                 color: #f00;
                                 padding-right: 5px;
@@ -316,8 +339,7 @@ export default {
                         &.item-value{
                             height: 100%;
                             width: 64%;
-                            flex: 7;
-                            
+                            flex: 6.4;
                             input{
                                 width: 100%;
                                 height: 100%;
@@ -384,7 +406,7 @@ export default {
                             background:#A1A1A1;
                         }
                     }
-                    &.next{
+                    &.submit-li{
                         padding-top: 20px;
                     }
                 }

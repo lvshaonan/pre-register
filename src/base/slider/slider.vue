@@ -71,7 +71,7 @@ export default {
         });
     },
     _initDots() {
-        this.dots = new Array(3);
+        this.dots = new Array(2);
     }
   },
   mounted() {

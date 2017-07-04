@@ -1,7 +1,6 @@
 <template>
   <div class="loading">
-    <img width="24" height="24" src="./loading.gif">
-    <!--<p class="desc">{{title}}</p>-->
+    <img width="40" height="40" src="./loading.gif">
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -17,6 +16,18 @@
 <style scoped lang="scss">
   .loading{
     width: 100%;
-    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.2);
+    z-index: 999;
+    img{
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      margin-left: -20px;
+    }
   }
 </style>
