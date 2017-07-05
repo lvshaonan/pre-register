@@ -72,6 +72,10 @@ export default {
     },
     _initDots() {
         this.dots = new Array(2);
+    },
+    nextPage() {
+        this.currentPageIndex++;
+        this.slider.goToPage(this.currentPageIndex, 0, 400);
     }
   },
   mounted() {
@@ -80,6 +84,11 @@ export default {
         this._initSlider();
         this._initDots();
     })
+  },
+  watch: {
+      currentPageIndex() {
+          this.$emit('sendIndex', this.currentPageIndex);
+      }
   }
 }
 </script>
@@ -103,7 +112,7 @@ export default {
             position: absolute;
             right: 0;
             left: 0;
-            bottom: 15%;
+            bottom: 12%;
             text-align: center;
             font-size: 0;
             .dot{
@@ -112,11 +121,11 @@ export default {
                 width: 8px;
                 height: 8px;
                 border-radius: 50%;
-                background: rgba(255, 255, 255, 0.6);
+                background: rgba(0, 0, 0, 0.4);
                 &.active{
                     width: 20px;
                     border-radius: 5px;
-                    background: rgba(255, 255, 255, 0.9);
+                    background: rgba(0, 0, 0, 0.6);
                 }
             }
         }

@@ -109,6 +109,7 @@
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
+            <loading v-show="isSubmitSuccess"></loading>
         </div>
     </transition>
 </template>
@@ -116,9 +117,11 @@
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
 import datePicker from '../../base/datePicker/datePicker';
+import loading from '../../base/loading/loading';
 export default {
     data() {
         return {
+            isSubmitSuccess:false,
             isDialogShow:false,
             dialogTit: '',
             imageBusinessLicense: '',
@@ -151,7 +154,8 @@ export default {
     },
     components: {
         'v-dialog': dialog,
-        datePicker
+        datePicker,
+        loading
     },
     watch: {
         isDialogShow() {
@@ -170,6 +174,11 @@ export default {
             if(this._checkRules(this.imageDangerous, '请上传危险品运输许可证')) return;
             if(this._checkRules(this.imageRoad, '请上传道路运输许可证')) return;
             //ajax...
+            this.isSubmitSuccess = true;
+            setTimeout(() => {
+                this.isSubmitSuccess = false;
+                this.$router.replace('/successfully');
+            }, 2000);
         },
         getDangerousValidity(val) {
             this.DangerousValidity = val;
@@ -330,7 +339,7 @@ export default {
                         &.item{
                             width: 35%;
                             font-size: 12px;
-                            flex: 3.6;
+                            flex: 4.1;
                             b{
                                 color: #f00;
                                 padding-right: 5px;
@@ -339,7 +348,7 @@ export default {
                         &.item-value{
                             height: 100%;
                             width: 64%;
-                            flex: 6.4;
+                            flex: 5.9;
                             input{
                                 width: 100%;
                                 height: 100%;

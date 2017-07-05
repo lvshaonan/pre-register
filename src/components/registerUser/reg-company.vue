@@ -39,7 +39,6 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <!--<input type="text" v-model="validity">-->
                             <date-picker @sendDate="getvalidity"></date-picker>
                         </span>
                     </li>
@@ -94,26 +93,26 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <!--<input type="text" v-model="userIdValidity">-->
                             <date-picker @sendDate="getuserIdValidity"></date-picker>
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="text" v-model="phoneNum">
+                            <input type="number" v-model="phoneNum">
                         </span>
                     </li>
                     <li class="submit-li">
                         <button class="submit" @click="toSubmit">提交</button>
                     </li>
-                    <li>
+                    <!--<li>
                         <button class="later">跳过，稍后完善</button>
-                    </li>
+                    </li>-->
                     <li></li>
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
+            <loading v-show="isSubmitSuccess"></loading>
         </div>
     </transition>
 </template>
@@ -121,9 +120,11 @@
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
 import datePicker from '../../base/datePicker/datePicker';
+import loading from '../../base/loading/loading';
 export default {
     data() {
         return {
+            isSubmitSuccess: false,
             imageFront: '',
             imageReverse: '',
             imageLicense: '',
@@ -145,7 +146,8 @@ export default {
     },
     components: {
         'v-dialog': dialog,
-        datePicker
+        datePicker,
+        loading
     },
     mounted() {
         this.$nextTick(() => {
@@ -170,6 +172,12 @@ export default {
                 return;
             }
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+            // ajax...
+            this.isSubmitSuccess = true;
+            setTimeout(() => {
+                this.isSubmitSuccess = false;
+                this.$router.replace('/successfully');
+            }, 2000);
         },
         onDelete(f){
             this[f] = '';

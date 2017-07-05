@@ -66,22 +66,22 @@
                     <li class="submit-li">
                         <button class="submit" @click="toSubmit">提交</button>
                     </li>
-                    <li>
-                        <button class="later">跳过，稍后完善</button>
-                    </li>
                     <li></li>
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
+            <loading v-show="isSubmitSuccess"></loading>
         </div>
     </transition>
 </template>
 <script>
 import dialog from '../../base/dialog/dialog';
 import datePicker from '../../base/datePicker/datePicker';
+import loading from '../../base/loading/loading';
 export default {
     data() {
         return {
+            isSubmitSuccess: false,
             imageFront: '',
             imageReverse: '',
             isDialogShow:false,
@@ -98,7 +98,8 @@ export default {
     },
     components: {
         'v-dialog': dialog,
-        datePicker
+        datePicker,
+        loading
     },
     methods: {
         toSubmit() {
@@ -116,7 +117,12 @@ export default {
             }
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
             //ajax...
-            this.isMarkShow = true;
+            this.isSubmitSuccess = true;
+            setTimeout(() => {
+                this.isSubmitSuccess = false;
+                this.isMarkShow = true;
+                this.$router.replace('/successfully');
+            }, 2000);
         },
         getValidity(val) {
             this.validity = val;

@@ -3,9 +3,10 @@ import Router from 'vue-router'
 import Hello from '@/components/Hello'
 
 import welcome from '@/components/welcome'
+import successfully from '@/components/successfully'
+import regAgreement from '@/components/reg-agreement'
 
 import registerUser from '@/components/registerUser/register-user'
-import regAgreement from '@/components/reg-agreement'
 import regPersonal from '@/components/registerUser/reg-personal'
 import regCompany from '@/components/registerUser/reg-company'
 
@@ -69,6 +70,11 @@ export default new Router({
       path: '/enterpriseInfo',
       name: 'enterpriseInfo',
       component: enterpriseInfo
+    },
+    {
+      path: '/successfully',
+      name: 'successfully',
+      component: successfully
     }
   ]
 })

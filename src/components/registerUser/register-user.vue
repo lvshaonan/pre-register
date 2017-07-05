@@ -3,10 +3,10 @@
         <div class="register-user">
             <ul class="register-user-content">
                 <li>
-                    <input type="text" placeholder="请输入手机号" v-model="phoneNumber" @keyup="_checkPhoneNumber">
+                    <input type="number" placeholder="请输入手机号" v-model="phoneNumber" @keyup="_checkPhoneNumber">
                 </li>
                 <li>
-                    <input type="text" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification">
+                    <input type="number" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification">
                     <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
                     <div class="verification-btn disable" v-else>{{countdown}}s</div>
                 </li>

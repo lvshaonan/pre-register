@@ -94,7 +94,8 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>所属车队</span>
                         <span class="item-value">
-                            <input type="text" v-model="team">
+                            <input type="text" v-model="team" class="carTeam">
+                            <b class="add-team"></b>
                         </span>
                     </li>
                     <li class="next">
@@ -317,7 +318,7 @@ export default {
                             height: 100%;
                             width: 64%;
                             flex: 7;
-                            
+                            position: relative;
                             input{
                                 width: 100%;
                                 height: 100%;
@@ -326,6 +327,17 @@ export default {
                                 text-indent: 10px;
                                 display: inline-block;
                                 font-size: 12px;
+                            }
+                            .carTeam{
+                                width: 80%;
+                            }
+                            .add-team{
+                                width: 40px;
+                                height: 40px;
+                                position: absolute;
+                                top: 0;
+                                right: 0;
+                                background: #f66;
                             }
                             .input-img-btn{
                                 width: 54px;

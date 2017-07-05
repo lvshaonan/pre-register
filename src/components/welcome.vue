@@ -1,41 +1,53 @@
 <template>
     <div class="welcome" ref="scrollWrapper">
-        <div v-if="sliderData.length">
-            <slider ref="slider" :loop="false" :bounce="false">
-                <div class="slider-item">
-                    <img src="../assets/bg.jpg" alt="">
-                    <transition name="fadeLeft">
-                        <div class="car" v-show="isCarShow">
-                            <img src="../assets/car.png" alt="">
-                        </div>
-                    </transition>
-                    <transition name="fadeIn">
-                        <div class="phone" v-show="isPhoneShow">
-                            <img src="../assets/手机.gif" alt="">
-                        </div>
-                    </transition>
-                </div>
-                <div class="slider-item">
-                    <img src="../assets/1.jpg" alt="">
-                    <router-link to="/regDriver" tag="button" class="enter" replace>欢迎</router-link>
-                </div>
-            </slider>
-        </div>
+        <slider ref="slider" :loop="false" :bounce="false" @sendIndex="getIndex">
+            <div class="slider-item">
+                <img src="../assets/bg.jpg" alt="">
+                <transition name="fadeLeft">
+                    <div class="car" v-show="isCarShow">
+                        <img src="../assets/car.png" alt="">
+                    </div>
+                </transition>
+                <transition name="fadeIn">
+                    <div class="phone" v-show="isPhoneShow" @click="toNext">
+                        <img src="../assets/phone.gif" alt="">
+                    </div>
+                </transition>
+            </div>
+            <div class="slider-item">
+                <img src="../assets/bg2.jpg" alt="">
+                <transition name="btnFade">
+                    <router-link to="/registerUser" tag="div" class="owner" v-show="isBtnShow">
+                        <img src="../assets/btn_03.png" alt="">
+                    </router-link>
+                </transition>
+                <transition name="btnFade1">
+                    <router-link to="/regDriver" tag="div" class="driver" v-show="isBtnShow">
+                        <img src="../assets/btn_06.png" alt="">
+                    </router-link>
+                </transition>
+            </div>
+        </slider>
     </div>
 </template>
 <script>
     import slider from '../base/slider/slider.vue';
-    import imgData from '../assets/data.js';
     export default {
         data() {
             return {
-                sliderData: imgData,
                 isCarShow: false,
-                isPhoneShow: false
+                isPhoneShow: false,
+                isBtnShow: false,
+                currentPageIndex: 0
             }
         },
         methods: {
-
+            getIndex(val) {
+                this.currentPageIndex = val;
+            },
+            toNext() {
+                this.$refs.slider.nextPage();
+            }
         },
         components: {
             slider
@@ -43,11 +55,23 @@
         mounted() {
             this.isCarShow = true;
             this.isPhoneShow = true;
+        },
+        watch: {
+            currentPageIndex() {
+                if(this.currentPageIndex){
+                    this.isBtnShow = true;
+                    this.isCarShow = false;
+                    this.isPhoneShow = false;
+                }else{
+                    this.isBtnShow = false;
+                    this.isCarShow = true;
+                    this.isPhoneShow = true;
+                }
+            }
         }
     }
 </script>
 <style lang="scss">
-    
     .welcome{
         height: 100%;
         .slider-item{
@@ -85,6 +109,18 @@
                     width: 100%;
                 }
             }
+            .owner, .driver{
+                width: 56%;
+                top: 40%;
+                left: 22%;
+                position: absolute;
+                img{
+                    width: 100%;
+                }
+            }
+            .driver{
+                top: 60%;
+            }
         }
     }
     .fadeLeft-leave-active, .fadeLeft-enter-active{
@@ -97,6 +133,18 @@
         transition: all 2s;
     }   
     .fadeIn-enter, .fadeIn-leave-to{
+        opacity: 0;
+    }
+    .btnFade-leave-active, .btnFade-enter-active{
+        transition: all 0.8s;
+    }   
+    .btnFade-enter, .btnFade-leave-to{
+        opacity: 0;
+    }
+    .btnFade1-leave-active, .btnFade1-enter-active{
+        transition: all 2.8s;
+    }   
+    .btnFade1-enter, .btnFade1-leave-to{
         opacity: 0;
     }
 </style>

@@ -76,7 +76,7 @@
                         </span>
                     </li>
                     <li class="next">
-                        <button>跳过并提交</button>
+                        <button @click="skip">跳过并提交</button>
                     </li>
                     <li>
                         <button @click="toSubmit">提交</button>
@@ -164,8 +164,11 @@ export default {
             this.isSubmitSuccess = true;
             setTimeout(() => {
                 this.isSubmitSuccess = false;
-                this.$router.push("/regDriverInfo");
+                this.$router.replace('/successfully');
             }, 2000);
+        },
+        skip() {
+            this.$router.replace('/successfully');
         },
         vehicleTypeShow() {
             this.isVehicleTypeShow = true;
@@ -395,6 +398,9 @@ export default {
                     }
                     &.next{
                         padding-top: 20px;
+                        button{
+                            background: #A1A1A1;
+                        }
                     }
                     .input-short{
                         border: 1px solid #dfdfdf;
