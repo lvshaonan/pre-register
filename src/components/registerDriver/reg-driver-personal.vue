@@ -95,7 +95,18 @@
                         <span class="item"><b>&nbsp;&nbsp;</b>所属车队</span>
                         <span class="item-value">
                             <input type="text" v-model="team" class="carTeam">
-                            <b class="add-team"></b>
+                            <b class="add-team" @click="addTeam">
+                                <i></i>
+                            </b>
+                        </span>
+                    </li>
+                    <li v-show="otherTeamShow">
+                        <span class="item"></span>
+                        <span class="item-value">
+                            <input type="text" v-model="otherTeam" class="carTeam">
+                            <b class="add-team minus" @click="minusTeam">
+                                <i></i>
+                            </b>
                         </span>
                     </li>
                     <li class="next">
@@ -131,6 +142,8 @@ export default {
             team: '',
             isDialogShow:false,
             dialogTit: '',
+            otherTeamShow: false,
+            otherTeam: ''
         }
     },
     created() {
@@ -192,6 +205,18 @@ export default {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
                 click: true
             });
+        },
+        addTeam() {
+            this.otherTeamShow = true;
+            setTimeout(() => {
+                this.scroll.refresh();
+            }, 200);
+        },
+        minusTeam() {
+            this.otherTeamShow = false;
+            setTimeout(() => {
+                this.scroll.refresh();
+            }, 200);
         },
         addLicense(e){
             e.preventDefault();
@@ -337,7 +362,22 @@ export default {
                                 position: absolute;
                                 top: 0;
                                 right: 0;
-                                background: #f66;
+                                i{
+                                    display: inline-block;
+                                    width: 26px;
+                                    height: 26px;
+                                    position: absolute;
+                                    top: 7px;
+                                    left: 5px;
+                                    background: url(../../assets/add.png);
+                                    background-size: cover;
+                                }
+                            }
+                            .minus{
+                                i{
+                                    background: url(../../assets/minus.png);
+                                    background-size: cover;
+                                }
                             }
                             .input-img-btn{
                                 width: 54px;

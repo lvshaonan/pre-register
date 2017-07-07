@@ -15,6 +15,9 @@
                             <span class="img-wrapper" v-else>
                                 <img src="./u111.png" alt="" >
                                 <i>示例照片</i>
+                                <span class="img-upload" v-show="isUpload">
+                                    <i></i>
+                                </span>
                             </span>
                         </span>
                     </li>
@@ -30,6 +33,9 @@
                             <span class="img-wrapper" v-else>
                                 <img src="./u125.jpg" alt="" >
                                 <i>示例照片</i>
+                                <span class="img-upload" v-show="isUpload1">
+                                    <i></i>
+                                </span>
                             </span>
                         </span>
                     </li>
@@ -78,11 +84,15 @@
 import dialog from '../../base/dialog/dialog';
 import datePicker from '../../base/datePicker/datePicker';
 import loading from '../../base/loading/loading';
+import axios from 'axios';
+import {api} from '../../api/api.js';
+import {imgPreview} from '../../common/js/compress.js';
 export default {
     data() {
         return {
             isSubmitSuccess: false,
             imageFront: '',
+            imageFrontFinal: '',
             imageReverse: '',
             isDialogShow:false,
             dialogTit: '',
@@ -90,11 +100,20 @@ export default {
             userId: '',
             address: '',
             validity: '',
-            phoneNum: ''
+            phoneNum: '',
+            uId: '',
+            imageFrontPath: '',
+            imageReversePath: '',
+            picValue: '',
+            isUpload:false,
+            isUpload1:false
         }
     },
     created() {
         document.title = '完善信息';
+    },
+    mounted() {
+        this.uId = this.$route.query.uId;
     },
     components: {
         'v-dialog': dialog,
@@ -118,11 +137,50 @@ export default {
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
             //ajax...
             this.isSubmitSuccess = true;
-            setTimeout(() => {
+            axios({
+                method: 'post',
+                url: api + '/u/register/user/authc',
+                data: {
+                    uid: this.uId,
+                    real_name: this.userName,
+                    id_card_number:this.userId,
+                    id_card_front_pic:this.imageFrontPath,
+                    id_card_inverse_pic:this.imageReverse,
+                    id_card_expiry_date:this.validity,
+                    address:this.address,
+                    tel_phone:this.phoneNum
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
                 this.isSubmitSuccess = false;
-                this.isMarkShow = true;
-                this.$router.replace('/successfully');
-            }, 2000);
+                if(res.data.code === 0){
+                    this.$router.replace('/successfully');
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isSubmitSuccess = false;
+                setTimeout(() => {
+                    this.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
         },
         getValidity(val) {
             this.validity = val;
@@ -143,30 +201,12 @@ export default {
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'front');
+            imgPreview(this, files[0], 'imageFront');
         },
         onFileReverseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'reverse');
-        },
-        createImage(file, flag) {
-            if (typeof FileReader === 'undefined') {
-                alert('您的浏览器不支持图片上传，请升级您的浏览器');
-                return false;
-            }
-            let image = new Image();
-            let that = this;
-            let leng = file.length;
-            let reader = new FileReader();
-            reader.readAsDataURL(file[0]);
-            reader.onload = function (e) {
-                if(flag == 'front'){
-                    that.imageFront = e.target.result;
-                }else if(flag == 'reverse'){
-                    that.imageReverse = e.target.result;
-                }
-            };
+            imgPreview(this, files[0], 'imageReverse');
         },
         _checkRules(val, tit) {
             let that = this;
@@ -177,27 +217,6 @@ export default {
                 this.dialogTit = tit;
                 return true;
             }
-        },
-        uploadImage: function () {
-            console.log(this.images);
-            return false;
-            var obj = {};
-            obj.images = this.images
-            // $.ajax({
-            //     type: 'post',
-            //     url: "upload.php",
-            //     data: obj,
-            //     dataType: "json",
-            //     success: function(data) {
-            //         if(data.status){
-            //             alert(data.msg);
-            //             return false;
-            //         }else{
-            //             alert(data.msg);
-            //             return false;
-            //         }
-            //     }
-            //   });
         }
     },
     watch: {
@@ -207,6 +226,84 @@ export default {
                     this.isDialogShow = false
                 }, 2000);
             }
+        },
+        imageFront() {
+            this.isUpload = true;
+            axios({
+                method: 'post',
+                url: api + '/upload/image/base64',
+                data: {
+                    fileBase64: this.imageFront,
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                this.isUpload = false;
+                if(res.data.code === 0){
+                    this.imageFrontPath = res.data.data.path;
+                    console.log(res.data);
+                }else{
+                    setTimeout(() => {
+                        that.isDialogShow = true;
+                    },100);
+                    this.dialogTit = '图片上传失败';
+                }
+            })
+            .catch((error) => {
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
+        },
+        imageReverse() {
+            this.isUpload1 = true;
+            axios({
+                method: 'post',
+                url: api + '/upload/image/base64',
+                data: {
+                    fileBase64: this.imageReverse,
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                this.isUpload1 = false;
+                if(res.data.code === 0){
+                    this.imageReversePath = res.data.data.path;
+                    console.log(res.data);
+                }else{
+                    setTimeout(() => {
+                        that.isDialogShow = true;
+                    },100);
+                    this.dialogTit = '图片上传失败';
+                }
+            })
+            .catch((error) => {
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
         }
     }
 }
@@ -268,7 +365,7 @@ export default {
                             height: 100%;
                             width: 64%;
                             flex: 7;
-                            
+                            position: relative;
                             input{
                                 width: 100%;
                                 height: 100%;
@@ -288,7 +385,7 @@ export default {
                                 font-size: 24px;
                                 vertical-align: middle;
                             }
-                            .img-wrapper{
+                            .img-wrapper, .img-upload{
                                 position: relative;
                                 width: 66px;
                                 height: 54px;
@@ -320,6 +417,24 @@ export default {
                                     font-size: 14px;
                                     font-style: normal;
                                     text-align: center;
+                                }
+                            }
+                            .img-upload{
+                                margin: 0;
+                                background: #fff;
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                z-index: 999;
+                                i{
+                                    width: 20px;
+                                    height: 20px;
+                                    left: 50%;
+                                    top: 50%;
+                                    margin: -10px 0 0 -10px;
+                                    background: url(../../assets/imgUpLoad.gif);
+                                    background-size: cover;
+                                    z-index: 999;
                                 }
                             }
                         }

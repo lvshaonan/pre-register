@@ -6,7 +6,7 @@
                     <input type="number" placeholder="请输入手机号" v-model="phoneNumber" @keyup="_checkPhoneNumber">
                 </li>
                 <li>
-                    <input type="number" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification">
+                    <input type="number" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification" @blur="checkCode">
                     <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
                     <div class="verification-btn disable" v-else>{{countdown}}s</div>
                 </li>
@@ -32,14 +32,14 @@
                 <div class="reg-classes" v-show="isMarkShow">
                     <h2>注册成功，请选择身份</h2>
                     <ul class="classes">
-                        <router-link to="/regDriverPersonal" tag="li">
+                        <li @click="selectRole('司机')">
                             <img src="./u409.png">
                             <p>司机</p>
-                        </router-link>
-                        <router-link to="/regDriverTeam" tag="li">
+                        </li>
+                        <li @click="selectRole('车队')">
                             <img src="./u414.png">
                             <p>车队</p>
-                        </router-link>
+                        </li>
                     </ul>
                 </div>
             </transition>
@@ -71,7 +71,10 @@ export default {
           checkVerification:false,
           checkPasswordAgain:false,
           checkPassword:false,
-          checkIsCheck:true
+          checkIsCheck:true,
+          trueCode: '',
+          userId: '',
+          isCheckTrue:false
       }
   },
     created() {
@@ -84,6 +87,50 @@ export default {
             if(re.test(this.phoneNumber)){
                 this.checkPhoneNumber = true;
             }
+        },
+        checkCode() {
+            // axios({
+            //     method: 'post',
+            //     url: 'http://192.168.188.105:8888/u/check_captcha',
+            //     data: {
+            //         mobile: this.phoneNumber,
+            //         captcha: this.verification
+            //     },  
+            //     transformRequest: [function (data) {
+            //         let ret = ''
+            //         for (let it in data) {
+            //         ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+            //         }
+            //         return ret
+            //     }],
+            //     headers: {
+            //         'Content-Type': 'application/x-www-form-urlencoded'
+            //     }
+            // })
+            // .then((res) => {
+            //     if(res.data.code === 0){
+            //         if(res.data.data){
+            //             this.isCheckTrue = true;
+            //             setTimeout(() => {
+            //                 this.isDialogShow = true;
+            //             },100);
+            //             this.dialogTit = '验证码有效';
+            //             return;
+            //         }else{
+            //             setTimeout(() => {
+            //                 this.isDialogShow = true;
+            //             },100);
+            //             this.dialogTit = '验证码无效';
+            //             return;
+            //         }
+            //     }
+            // })
+            // .catch((error) => {
+            //     this.isMarkShow = false;
+            //     this.isSubmitSuccess = false;
+            //     this.dialogTit = '服务器错误';
+            //     console.log('错误了'+ error)
+            // });
         },
         _checkVerification() {
             let re = /^\d{4}$/;
@@ -115,6 +162,23 @@ export default {
         },
         MarkHide() {
             this.isMarkShow = false;
+        },
+        selectRole(role){
+            if(role == '司机'){
+                //ajax...
+                this.isSubmitSuccess = true;
+                setTimeout(() => {
+                    this.isSubmitSuccess = false;
+                    this.$router.replace('/regDriverPersonal');
+                }, 2000);
+            }else if(role == '车队'){
+                //ajax...
+                this.isSubmitSuccess = true;
+                setTimeout(() => {
+                    this.isSubmitSuccess = false;
+                    this.$router.replace('/regDriverTeam');
+                }, 2000);
+            }
         },
         toRegister() {
             if(this.phoneNumber && this.verification && this.password && this.passwordAgain && this.isCheck.state){
@@ -153,12 +217,7 @@ export default {
                     this.dialogTit = '请阅读注册协议';
                     return;
                 }
-                //ajax...
-                this.isSubmitSuccess = true;
-                setTimeout(() => {
-                    this.isSubmitSuccess = false;
-                    this.isMarkShow = true;
-                }, 2000);
+                this.isMarkShow = true;
             }else{
                 setTimeout(() => {
                     this.isDialogShow = true;
@@ -184,7 +243,7 @@ export default {
             if(this.isDialogShow) {
                 setTimeout(() => {
                     this.isDialogShow = false
-                }, 1300);
+                }, 1600);
             }
         },
         password() {

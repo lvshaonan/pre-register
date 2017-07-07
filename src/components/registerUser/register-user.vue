@@ -6,7 +6,7 @@
                     <input type="number" placeholder="请输入手机号" v-model="phoneNumber" @keyup="_checkPhoneNumber">
                 </li>
                 <li>
-                    <input type="number" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification">
+                    <input type="number" placeholder="请输入验证码" class="verification" v-model="verification" @keyup="_checkVerification" @blur="checkCode">
                     <div class="verification-btn" v-if="flag" @click="sendVerification">{{sendTxt}}</div>
                     <div class="verification-btn disable" v-else>{{countdown}}s</div>
                 </li>
@@ -32,14 +32,21 @@
                 <div class="reg-classes" v-show="isMarkShow">
                     <h2>注册成功，请选择身份</h2>
                     <ul class="classes">
-                        <router-link to="/regPersonal" tag="li">
+                        <!--<router-link to="/regPersonal" tag="li">
+                            
+                        </router-link>-->
+                        <li @click="selectRole('个人')">
                             <img src="./u44.png">
                             <p>个人</p>
-                        </router-link>
-                        <router-link to="/regCompany" tag="li">
+                        </li>
+                        <li @click="selectRole('企业')">
                             <img src="./u49.png">
                             <p>企业</p>
-                        </router-link>
+                        </li>
+                        <!--<router-link to="/regCompany" tag="li">
+                            <img src="./u49.png">
+                            <p>企业</p>
+                        </router-link>-->
                     </ul>
                 </div>
             </transition>
@@ -52,6 +59,8 @@
 <script>
 import dialog from '../../base/dialog/dialog';
 import loading from '../../base/loading/loading';
+import axios from 'axios';
+import {api} from '../../api/api.js';
 export default {
   data() {
       return {
@@ -71,7 +80,10 @@ export default {
           checkPasswordAgain:false,
           checkPassword:false,
           checkIsCheck:true,
-          isSubmitSuccess: false
+          isSubmitSuccess: false,
+          trueCode: '',
+          userId: '',
+          isCheckTrue:false
       }
   },
     created() {
@@ -87,6 +99,46 @@ export default {
             if(re.test(this.phoneNumber)){
                 this.checkPhoneNumber = true;
             }
+        },
+        checkCode() {
+            axios({
+                method: 'post',
+                url: api + '/u/check_captcha',
+                data: {
+                    mobile: this.phoneNumber,
+                    captcha: this.verification
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                if(res.data.code === 0){
+                    if(res.data.data){
+                        this.isCheckTrue = true;
+                        return;
+                    }else{
+                        setTimeout(() => {
+                            this.isDialogShow = true;
+                        },100);
+                        this.dialogTit = '验证码无效';
+                        return;
+                    }
+                }
+            })
+            .catch((error) => {
+                this.isMarkShow = false;
+                this.isSubmitSuccess = false;
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
         },
         _checkVerification() {
             let re = /^\d{4}$/;
@@ -108,13 +160,136 @@ export default {
                 this.checkPasswordAgain = true;
             }
         },
+        selectRole(role){
+            if(role == '个人'){
+                var that = this;
+                //ajax...
+                this.isSubmitSuccess = true;
+                axios({
+                    method: 'post',
+                    url: api + '/u/register/user',
+                    data: {
+                        mobile: this.phoneNumber,
+                        password: this.password,
+                        captcha: this.verification
+                    },  
+                    transformRequest: [function (data) {
+                        let ret = ''
+                        for (let it in data) {
+                        ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                        }
+                        return ret
+                    }],
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    this.isMarkShow = false;
+                    this.isSubmitSuccess = false;
+                    if(res.data.code === 0){
+                        this.userId = res.data.data.id;
+                        this.$router.replace('/regPersonal?uId='+ this.userId);
+                    }else{
+                        setTimeout(() => {
+                            this.isDialogShow = true;
+                        },100);
+                        this.dialogTit = res.data.message;
+                        return;
+                    }
+                })
+                .catch((error) => {
+                    this.isMarkShow = false;
+                    this.isSubmitSuccess = false;
+                    this.dialogTit = '服务器错误';
+                    console.log('错误了'+ error)
+                });
+            }else if(role == '企业'){
+                //ajax...
+                this.isSubmitSuccess = true;
+                axios({
+                    method: 'post',
+                    url: api + '/u/register/user',
+                    data: {
+                        mobile: this.phoneNumber,
+                        password: this.password,
+                        captcha: this.verification
+                    },  
+                    transformRequest: [function (data) {
+                        let ret = ''
+                        for (let it in data) {
+                        ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                        }
+                        return ret
+                    }],
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then((res) => {
+                    this.isMarkShow = false;
+                    this.isSubmitSuccess = false;
+                    if(res.data.code === 0){
+                        this.userId = res.data.data.id;
+                        this.$router.replace('/regCompany?uId='+ this.userId);
+                    }else{
+                        setTimeout(() => {
+                            this.isDialogShow = true;
+                        },100);
+                        this.dialogTit = res.data.message;
+                        return;
+                    }
+                })
+                .catch((error) => {
+                    this.isMarkShow = false;
+                    this.isSubmitSuccess = false;
+                    this.dialogTit = '服务器错误';
+                    console.log('错误'+ error)
+                });
+            }
+        },
         sendVerification() {
+            // 发送验证码
             this.timer = setInterval(() => {
                 this.countdown--;
             }, 1000);
             if(this.flag){
                 this.flag = false
             }
+            axios({
+                method: 'post',
+                url: api + '/u/captcha',
+                data: {
+                    mobile: this.phoneNumber
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                if(res.data.code === 0){
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    return;
+                }
+            })
+            .catch((error) => {
+                setTimeout(() => {
+                    this.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                return;
+            });
         },
         MarkHide() {
             this.isMarkShow = false;
@@ -128,7 +303,7 @@ export default {
                     this.dialogTit = '手机号填写错误';
                     return;
                 }
-                if(!this.checkVerification){
+                if(!this.checkVerification && this.isCheckTrue){
                     setTimeout(() => {
                         this.isDialogShow = true;
                     },100);
@@ -156,12 +331,7 @@ export default {
                     this.dialogTit = '请阅读注册协议';
                     return;
                 }
-                //ajax...
-                this.isSubmitSuccess = true;
-                setTimeout(() => {
-                    this.isSubmitSuccess = false;
-                    this.isMarkShow = true;
-                }, 2000);
+                this.isMarkShow = true;
             }else{
                 setTimeout(() => {
                     this.isDialogShow = true;
@@ -187,7 +357,7 @@ export default {
             if(this.isDialogShow) {
                 setTimeout(() => {
                     this.isDialogShow = false
-                }, 1300);
+                }, 1600);
             }
         },
         password() {
@@ -314,7 +484,6 @@ export default {
             bottom: 0;
             right: 0;
             background: rgba(0,0,0,0.4);
-
         }
     }
 </style>

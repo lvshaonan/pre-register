@@ -121,6 +121,8 @@ import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
 import datePicker from '../../base/datePicker/datePicker';
 import loading from '../../base/loading/loading';
+import {api} from '../../api/api.js';
+import {imgPreview} from '../../common/js/compress.js';
 export default {
     data() {
         return {
@@ -138,7 +140,10 @@ export default {
             userId: '',
             address: '',
             userIdValidity: '',
-            phoneNum: ''
+            phoneNum: '',
+            uId: '',
+            imageReversePath: '',
+            imageFrontPath: ''
         }
     },
     created() {
@@ -150,6 +155,7 @@ export default {
         loading
     },
     mounted() {
+        this.uId = this.$route.query.uId;
         this.$nextTick(() => {
             this._initScroll();
         });
@@ -174,10 +180,54 @@ export default {
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
             // ajax...
             this.isSubmitSuccess = true;
-            setTimeout(() => {
+            axios({
+                method: 'post',
+                url: api+'/u/register/company/authc',
+                data: {
+                    uid: this.uId,
+                    real_name: this.name,
+                    id_card_number: this.userId,
+                    id_card_front_pic: this.imageFront,
+                    id_card_inverse_pic: this.imageReverse,
+                    id_card_expiry_date: this.userIdValidity,
+                    address: this.address,
+                    tel_phone: this.phoneNum,
+                    company_name: this.companyName,
+                    company_address: this.address,
+                    business_license_number: this.licenseCode,
+                    business_license_pic: this.imageLicense,
+                    business_license_expiry_date: this.validity,
+                    legal_person: this.legalPerson
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
                 this.isSubmitSuccess = false;
-                this.$router.replace('/successfully');
-            }, 2000);
+                if(res.data.code === 0){
+                    this.$router.replace('/successfully');
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isSubmitSuccess = false;
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
+
         },
         onDelete(f){
             this[f] = '';
@@ -211,17 +261,17 @@ export default {
         onFileLicenseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'license');
+            imgPreview(this, files[0], 'imageLicense');
         },
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'front');
+            imgPreview(this, files[0], 'imageFront');
         },
         onFileReverseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'reverse');
+            imgPreview(this, files[0], 'imageReverse');
         },
         _checkRules(val, tit) {
             let that = this;
@@ -232,47 +282,6 @@ export default {
                 this.dialogTit = tit;
                 return true;
             }
-        },
-        createImage(file, flag) {
-            if (typeof FileReader === 'undefined') {
-                alert('您的浏览器不支持图片上传，请升级您的浏览器');
-                return false;
-            }
-            let image = new Image();
-            let that = this;
-            let leng = file.length;
-            let reader = new FileReader();
-            reader.readAsDataURL(file[0]);
-            reader.onload = function (e) {
-                if(flag == 'front'){
-                    that.imageFront = e.target.result;
-                }else if(flag == 'reverse'){
-                    that.imageReverse = e.target.result;
-                }else if(flag == 'license'){
-                    that.imageLicense = e.target.result;
-                }
-            };
-        },
-        uploadImage: function () {
-            console.log(this.images);
-            return false;
-            var obj = {};
-            obj.images = this.images
-            // $.ajax({
-            //     type: 'post',
-            //     url: "upload.php",
-            //     data: obj,
-            //     dataType: "json",
-            //     success: function(data) {
-            //         if(data.status){
-            //             alert(data.msg);
-            //             return false;
-            //         }else{
-            //             alert(data.msg);
-            //             return false;
-            //         }
-            //     }
-            //   });
         }
     },
     watch: {
@@ -282,6 +291,123 @@ export default {
                     this.isDialogShow = false
                 }, 2000);
             }
+        },
+        imageFront() {
+            this.isUpload = true;
+            axios({
+                method: 'post',
+                url: api + '/upload/image/base64',
+                data: {
+                    fileBase64: this.imageFront,
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                this.isUpload = false;
+                if(res.data.code === 0){
+                    this.imageFrontPath = res.data.data.path;
+                    console.log(res.data);
+                }else{
+                    setTimeout(() => {
+                        that.isDialogShow = true;
+                    },100);
+                    this.dialogTit = '图片上传失败';
+                }
+            })
+            .catch((error) => {
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
+        },
+        imageReverse() {
+            this.isUpload1 = true;
+            axios({
+                method: 'post',
+                url: api + '/upload/image/base64',
+                data: {
+                    fileBase64: this.imageReverse,
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                this.isUpload1 = false;
+                if(res.data.code === 0){
+                    this.imageReversePath = res.data.data.path;
+                    console.log(res.data);
+                }else{
+                    setTimeout(() => {
+                        that.isDialogShow = true;
+                    },100);
+                    this.dialogTit = '图片上传失败';
+                }
+            })
+            .catch((error) => {
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
+        },
+        imageLicense() {
+            this.isUpload1 = true;
+            axios({
+                method: 'post',
+                url: api + '/upload/image/base64',
+                data: {
+                    fileBase64: this.imageLicense,
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                this.isUpload1 = false;
+                if(res.data.code === 0){
+                    this.imageFrontPath = res.data.data.path;
+                    console.log(res.data);
+                }else{
+                    setTimeout(() => {
+                        that.isDialogShow = true;
+                    },100);
+                    this.dialogTit = '图片上传失败';
+                }
+            })
+            .catch((error) => {
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
         }
     }
 }
