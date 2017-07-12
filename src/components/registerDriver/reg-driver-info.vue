@@ -7,7 +7,7 @@
                         <span class="item"><b>&lowast;</b>车辆45°照片</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addCarFront">+</a>
-                            <input type="file" @change="onCarFrontChange" multiple style="display: none;" ref="onCarFrontChange" accept="image/*">
+                            <input type="file" @change="onCarFrontChange" style="display: none;" ref="onCarFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageCarFront">
                                 <img :src="imageCarFront" alt="" >
                                 <b class="delete" @click="onDelete('imageCarFront')"></b>
@@ -22,7 +22,7 @@
                         <span class="item"><b>&lowast;</b>行驶证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addVehicle">+</a>
-                            <input type="file" @change="onFileVehicleChange" multiple style="display: none;" ref="onFileVehicleChange" accept="image/*">
+                            <input type="file" @change="onFileVehicleChange" style="display: none;" ref="onFileVehicleChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageVehicle">
                                 <img :src="imageVehicle" alt="" >
                                 <b class="delete" @click="onDelete('imageVehicle')"></b>
@@ -84,27 +84,52 @@
                     <li></li>
                 </ul>
             </div>
+            <div class="warn-dialog" v-show="isWarnShow">
+                <div class="warn-message">
+                    <h3>您已填写车辆信息</h3>
+                    <h3>确定跳过提交？</h3>
+                    <ul>
+                        <li>
+                            <button @click="onSkip" class="onSkip">跳过</button>
+                        </li>
+                        <li>
+                            <button @click="noSkip" class="noSkip">不跳过</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
             <vehicle-type v-show="isVehicleTypeShow" @vehicleType="getVehicleType"></vehicle-type>
             <product-edia v-show="isProductMediaShow" @productMedia="getProductMedia"></product-edia>
-            <loading v-show="isSubmitSuccess"></loading>
+            <loading v-show="isLoadingShow" :title="loadingTit"></loading>
+            <confirmRun v-show="confirmRunShow" @cardRun="getCardRun" :plateNum="dialogPlateNum" :owner="dialogOwner" :engineNum="dialogEngineNum" :discernCode="dialogDiscernCode" @clossRun="clossRun"></confirmRun>
+            <validation v-show="isValidationShow"></validation>
         </div>
     </transition>
 </template>
 <script>
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
+import validation from '../../base/validation/validation';
 import vehicleType from './vehicle-type';
 import productMedia from './product-media';
 import loading from '../../base/loading/loading';
+import axios from 'axios';
+import {api} from '../../api/api.js';
+import {imgPreview} from '../../common/js/compress.js';
+import confirmRun from '../../base/confirm/confirmRun';
+import {is_weixn, isIPHONE, is_QQ} from '../../common/js/isIphone.js';
 export default {
     data() {
         return {
-            isSubmitSuccess:false,
+            isLoadingShow:false,
             isDialogShow:false,
+            isWarnShow:false,
             dialogTit: '',
             imageCarFront: '',
             imageVehicle: '',
+            imageCarFrontPath: '',
+            imageVehiclePath: '',
             plateNum: '',
             ownerName: '',
             engineNum: '',
@@ -112,22 +137,57 @@ export default {
             vehicleType: '',
             medium: '',
             isProductMediaShow: false,
-            isVehicleTypeShow: false
+            isVehicleTypeShow: false,
+            sendIndex: 0,
+            sendJieIndex: 0,
+            otherType: '',
+            otherJiezhi: '',
+            confirmRunShow: false,
+            dialogPlateNum: '',
+            dialogEngineNum: '',
+            dialogOwner: '',
+            dialogDiscernCode: '',
+            loadingTit: '',
+            isCarFrontSuccess: false,
+            isRunSuccess:false,
+            isValidationShow:false,
+            submitNext:false,
+            submitAgain:false,
+            temporaryUserName: '',
+            temporaryUserId: ''
         }
     },
     created() {
         document.title = '司机认证';
     },
     mounted() {
-        this.$nextTick(() => {
-            this._initScroll();
-        });
+        this.uId = localStorage.getItem('xiaohei_driver_uId');
+        this.xiaohei_driver_real_name = localStorage.getItem('xiaohei_driver_real_name');
+        this.xiaohei_driver_id_card_number = localStorage.getItem('xiaohei_driver_id_card_number');
+        this.xiaohei_driver_id_card_front_path = localStorage.getItem('xiaohei_driver_id_card_front_path');
+        this.xiaohei_driver_id_card_inverse_path = localStorage.getItem('xiaohei_driver_id_card_inverse_path');
+        this.xiaohei_driver_id_card_expiry_date = localStorage.getItem('xiaohei_driver_id_card_expiry_date');
+        this.xiaohei_driver_address = localStorage.getItem('xiaohei_driver_address');
+        this.xiaohei_driver_tel_phone = localStorage.getItem('xiaohei_driver_tel_phone');
+        this.xiaohei_driver_driving_type = localStorage.getItem('xiaohei_driver_driving_type');
+        this.xiaohei_driver_driving_licence_path = localStorage.getItem('xiaohei_driver_driving_licence_path');
+        this.xiaohei_driver_dirving_licence_expiry_date = localStorage.getItem('xiaohei_driver_dirving_licence_expiry_date');
+        this.xiaohei_driver_fleets = localStorage.getItem('xiaohei_driver_fleets');
+        
+        if(!isIPHONE){
+            if(is_weixn() || is_QQ()){
+                this.$refs.onCarFrontChange.setAttribute("capture","camera");
+                this.$refs.onFileVehicleChange.setAttribute("capture","camera");
+            }
+        }
     },
     components: {
         'v-dialog': dialog,
         vehicleType,
         'product-edia': productMedia,
-        loading
+        loading,
+        confirmRun,
+        validation
     },
     watch: {
         isDialogShow() {
@@ -135,6 +195,11 @@ export default {
                 setTimeout(() => {
                     this.isDialogShow = false
                 }, 2000);
+            }
+        },
+        isLoadingShow() {
+            if(!this.isLoadingShow){
+                this.loadingTit = '';
             }
         },
         isProductMediaShow(){
@@ -150,10 +215,75 @@ export default {
             }else{
                 document.title = '司机认证';
             }
+        },
+        isValidationShow() {
+            if(this.isValidationShow){
+                setTimeout(() => {
+                    this.isValidationShow = false
+                }, 3000);
+            }
+        },
+        submitNext() {
+            if(this.submitNext){
+                axios({
+                    method: 'post',
+                    url: api + '/d/register/driver/vehicle/authc',
+                    data: {
+                        uid: this.uId,
+                        vehicle_plate_number:this.plateNum,
+                        vehicle_front_pic:this.imageCarFrontPath,
+                        vehicle_license_front_pic:this.imageVehiclePath,
+                        vehicle_holder_name:this.ownerName,
+                        vehicle_engine_number:this.engineNum,
+                        vehicle_id_code:this.identifyCode,
+                        vehicle_type:this.sendIndex,
+                        vehicle_type_custom:this.otherType,
+                        vehicle_transport_medium: this.sendJieIndex,
+                        vehicle_transport_medium_custom:this.otherJiezhi
+                    },  
+                    transformRequest: [function (data) {
+                        let ret = ''
+                        for (let it in data) {
+                        ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                        }
+                        return ret
+                    }],
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    this.isLoadingShow = false;
+                    if(res.data.code === 0){
+                        this.isLoadingShow = false;
+                        this.$router.replace('/successfully');
+                        this.clearStorage();
+                    }else{
+                        setTimeout(() => {
+                            this.isDialogShow = true;
+                        },100);
+                        this.dialogTit = res.data.message;
+                        this.clearStorage();
+                        return;
+                    }
+                })
+                .catch((error) => {
+                    this.isLoadingShow = false;
+                    this.dialogTit = '服务器错误';
+                    console.log('错误'+ error);
+                    this.clearStorage();
+                });
+            }
         }
     },
     methods: {
         toSubmit() {
+            this.xiaohei_driver_real_name = localStorage.getItem('xiaohei_driver_real_name');
+            this.xiaohei_driver_id_card_number = localStorage.getItem('xiaohei_driver_id_card_number');
+            this.xiaohei_driver_id_card_front_path = localStorage.getItem('xiaohei_driver_id_card_front_path');
+            this.xiaohei_driver_id_card_inverse_path = localStorage.getItem('xiaohei_driver_id_card_inverse_path');
+            this.xiaohei_driver_id_card_expiry_date = localStorage.getItem('xiaohei_driver_id_card_expiry_date');
             if(this._checkRules(this.imageCarFront, '请上传车辆45°照片')) return;
             if(this._checkRules(this.imageVehicle, '请上传行驶证正面照')) return;
             if(this._checkRules(this.plateNum, '请填写车牌号')) return;
@@ -161,14 +291,304 @@ export default {
             if(this._checkRules(this.engineNum, '请填写发动机号')) return;
             if(this._checkRules(this.vehicleType, '请填写车辆类型')) return;
             if(this._checkRules(this.medium, '请填写产品介质')) return;
-            this.isSubmitSuccess = true;
-            setTimeout(() => {
-                this.isSubmitSuccess = false;
-                this.$router.replace('/successfully');
-            }, 2000);
+            if(!this.isCarFrontSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传车辆照片';
+                return;
+            }
+            if(!this.isRunSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传行驶证';
+                return;
+            }
+            if((this.temporaryUserName != this.xiaohei_driver_real_name) || (this.temporaryUserId != this.xiaohei_driver_id_card_number)){
+                this.submitAgain = false;
+            }
+            if(this.submitAgain){
+                this.isValidationShow = true;
+                setTimeout(() => {
+                    this.$router.back();
+                }, 2800);
+                return;
+            }
+            console.log('请求了1');
+            //ajax...
+            this.isLoadingShow = true;
+            axios({
+                method: 'post',
+                url: api + '/d/register/driver/authc',
+                data: {
+                    uid: this.uId,
+                    real_name: this.xiaohei_driver_real_name,
+                    id_card_number: this.xiaohei_driver_id_card_number,
+                    id_card_front_pic: this.xiaohei_driver_id_card_front_path,
+                    id_card_inverse_pic: this.xiaohei_driver_id_card_inverse_path,
+                    id_card_expiry_date: this.xiaohei_driver_id_card_expiry_date,
+                    address: this.xiaohei_driver_address,
+                    tel_phone: this.xiaohei_driver_tel_phone,
+                    driving_type: this.xiaohei_driver_driving_type,
+                    driving_licence_pic: this.xiaohei_driver_driving_licence_path,
+                    dirving_licence_expiry_date: this.xiaohei_driver_dirving_licence_expiry_date,
+                    fleets: this.xiaohei_driver_fleets
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                console.log(res.data);
+                this.isLoadingShow = false;
+                if(res.data.code === 0){
+                    this.submitNext = true;
+                    // this.isLoadingShow = false;
+                    // this.$router.replace('/successfully');
+                    // this.clearStorage();
+                }else if(res.data.code == 2){
+                    this.isValidationShow = true;
+                    this.submitAgain = true;
+                    this.temporaryUserName = this.xiaohei_driver_real_name;
+                    this.temporaryUserId = this.xiaohei_driver_id_card_number;
+                    setTimeout(() => {
+                        this.$router.back();
+                    }, 2800);
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    this.clearStorage();
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isLoadingShow = false;
+                this.dialogTit = '服务器错误';
+                console.log('错误'+ error);
+                this.clearStorage();
+            });
+            // axios({
+            //     method: 'post',
+            //     url: api + '/d/register/driver/vehicle/authc',
+            //     data: {
+            //         uid: this.uId,
+            //         vehicle_plate_number:this.plateNum,
+            //         vehicle_front_pic:this.imageCarFrontPath,
+            //         vehicle_license_front_pic:this.imageVehiclePath,
+            //         vehicle_holder_name:this.ownerName,
+            //         vehicle_engine_number:this.engineNum,
+            //         vehicle_id_code:this.identifyCode,
+            //         vehicle_type:this.sendIndex,
+            //         vehicle_type_custom:this.otherType,
+            //         vehicle_transport_medium: this.sendJieIndex,
+            //         vehicle_transport_medium_custom:this.otherJiezhi
+            //     },  
+            //     transformRequest: [function (data) {
+            //         let ret = ''
+            //         for (let it in data) {
+            //         ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+            //         }
+            //         return ret
+            //     }],
+            //     headers: {
+            //         'Content-Type': 'application/x-www-form-urlencoded'
+            //     }
+            // })
+            // .then((res) => {
+            //     console.log(res.data);
+            //     this.isLoadingShow = false;
+            //     if(res.data.code === 0){
+            //         this.isLoadingShow = false;
+            //         this.$router.replace('/successfully');
+            //         this.clearStorage();
+            //     }else if(res.data.code == 2){
+            //         this.isValidationShow = true;
+            //         setTimeout(() => {
+            //             this.$router.back();
+            //         }, 2000);
+            //     }else{
+            //         setTimeout(() => {
+            //             this.isDialogShow = true;
+            //         },100);
+            //         this.dialogTit = res.data.message;
+            //         this.clearStorage();
+            //         return;
+            //     }
+            // })
+            // .catch((error) => {
+            //     this.isLoadingShow = false;
+            //     this.dialogTit = '服务器错误';
+            //     console.log('错误'+ error);
+            //     this.clearStorage();
+            // });
+        },
+        onSkip() {
+            this.xiaohei_driver_real_name = localStorage.getItem('xiaohei_driver_real_name');
+            this.xiaohei_driver_id_card_number = localStorage.getItem('xiaohei_driver_id_card_number');
+            this.xiaohei_driver_id_card_front_path = localStorage.getItem('xiaohei_driver_id_card_front_path');
+            this.xiaohei_driver_id_card_inverse_path = localStorage.getItem('xiaohei_driver_id_card_inverse_path');
+            this.xiaohei_driver_id_card_expiry_date = localStorage.getItem('xiaohei_driver_id_card_expiry_date');
+            this.isWarnShow = false;
+            if((this.temporaryUserName != this.xiaohei_driver_real_name) || (this.temporaryUserId != this.xiaohei_driver_id_card_number)){
+                this.submitAgain = false;
+            }
+            if(this.submitAgain){
+                this.isValidationShow = true;
+                setTimeout(() => {
+                    this.$router.back();
+                }, 2800);
+                return;
+            }
+            console.log('请求了2');
+            //ajax...
+            this.isLoadingShow = true;
+            axios({
+                method: 'post',
+                url: api + '/d/register/driver/authc',
+                data: {
+                    uid: this.uId,
+                    real_name: this.xiaohei_driver_real_name,
+                    id_card_number: this.xiaohei_driver_id_card_number,
+                    id_card_front_pic:this.xiaohei_driver_id_card_front_path,
+                    id_card_inverse_pic:this.xiaohei_driver_id_card_inverse_path,
+                    id_card_expiry_date:this.xiaohei_driver_id_card_expiry_date,
+                    address:this.xiaohei_driver_address,
+                    tel_phone:this.xiaohei_driver_tel_phone,
+                    driving_type:this.xiaohei_driver_driving_type,
+                    driving_licence_pic:this.xiaohei_driver_driving_licence_path,
+                    dirving_licence_expiry_date:this.xiaohei_driver_dirving_licence_expiry_date,
+                    fleets: this.xiaohei_driver_fleets
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                console.log(res.data);
+                this.isLoadingShow = false;
+                if(res.data.code === 0){
+                    this.isLoadingShow = false;
+                    this.$router.replace('/successfully');
+                }else if(res.data.code == 2){
+                    this.isValidationShow = true;
+                    this.submitAgain = true;
+                    this.temporaryUserName = this.xiaohei_driver_real_name;
+                    this.temporaryUserId = this.xiaohei_driver_id_card_number;
+                    setTimeout(() => {
+                        this.$router.back();
+                    }, 2800);
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isLoadingShow = false;
+                this.dialogTit = '服务器错误';
+                console.log('错误'+ error)
+            });
+        },
+        noSkip() {
+            this.isWarnShow = false;
         },
         skip() {
-            this.$router.replace('/successfully');
+            this.xiaohei_driver_real_name = localStorage.getItem('xiaohei_driver_real_name');
+            this.xiaohei_driver_id_card_number = localStorage.getItem('xiaohei_driver_id_card_number');
+            this.xiaohei_driver_id_card_front_path = localStorage.getItem('xiaohei_driver_id_card_front_path');
+            this.xiaohei_driver_id_card_inverse_path = localStorage.getItem('xiaohei_driver_id_card_inverse_path');
+            this.xiaohei_driver_id_card_expiry_date = localStorage.getItem('xiaohei_driver_id_card_expiry_date');
+            if(this.imageCarFront || this.imageVehicle || this.plateNum || this.ownerName || this.engineNum || this.vehicleType || this.medium){
+                this.isWarnShow = true;
+            }else{
+                if((this.temporaryUserName != this.xiaohei_driver_real_name) || (this.temporaryUserId != this.xiaohei_driver_id_card_number)){
+                    this.submitAgain = false;
+                }
+                if(this.submitAgain){
+                    this.isValidationShow = true;
+                    setTimeout(() => {
+                        this.$router.back();
+                    }, 2800);
+                    return;
+                }
+                console.log('请求了3');
+                //ajax...
+                this.isLoadingShow = true;
+                axios({
+                    method: 'post',
+                    url: api + '/d/register/driver/authc',
+                    data: {
+                        uid: this.uId,
+                        real_name: this.xiaohei_driver_real_name,
+                        id_card_number: this.xiaohei_driver_id_card_number,
+                        id_card_front_pic:this.xiaohei_driver_id_card_front_path,
+                        id_card_inverse_pic:this.xiaohei_driver_id_card_inverse_path,
+                        id_card_expiry_date:this.xiaohei_driver_id_card_expiry_date,
+                        address:this.xiaohei_driver_address,
+                        tel_phone:this.xiaohei_driver_tel_phone,
+                        driving_type:this.xiaohei_driver_driving_type,
+                        driving_licence_pic:this.xiaohei_driver_driving_licence_path,
+                        dirving_licence_expiry_date:this.xiaohei_driver_dirving_licence_expiry_date,
+                        fleets: this.xiaohei_driver_fleets
+                    },  
+                    transformRequest: [function (data) {
+                        let ret = ''
+                        for (let it in data) {
+                        ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                        }
+                        return ret
+                    }],
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    this.isLoadingShow = false;
+                    if(res.data.code === 0){
+                        this.isLoadingShow = false;
+                        this.$router.replace('/successfully');
+                    }else if(res.data.code == 2){
+                        this.isValidationShow = true;
+                        this.submitAgain = true;
+                        this.temporaryUserName = this.xiaohei_driver_real_name;
+                        this.temporaryUserId = this.xiaohei_driver_id_card_number;
+                        setTimeout(() => {
+                            this.$router.back();
+                        }, 2800);
+                    }else{
+                        setTimeout(() => {
+                            this.isDialogShow = true;
+                        },100);
+                        this.dialogTit = res.data.message;
+                        return;
+                    }
+                })
+                .catch((error) => {
+                    this.isLoadingShow = false;
+                    this.dialogTit = '服务器错误';
+                    console.log('错误'+ error)
+                });
+            }
         },
         vehicleTypeShow() {
             this.isVehicleTypeShow = true;
@@ -179,10 +599,18 @@ export default {
         getVehicleType(val) {
             this.isVehicleTypeShow = val.isShow;
             this.vehicleType = val.typeVal;
+            this.sendIndex = val.index;
+            if(this.sendIndex == 4){
+                this.otherType = this.vehicleType;
+            }
         },
         getProductMedia(val) {
             this.isProductMediaShow = val.isShow;
             this.medium = val.value;
+            this.sendJieIndex = val.index;
+            if(this.sendJieIndex == 2){
+                this.otherJiezhi = this.medium;
+            }
         },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
@@ -199,20 +627,20 @@ export default {
             this.$refs.onCarFrontChange.click();
             return false;
         },
-        addPicReverse(e){
-            e.preventDefault();
-            this.$refs.onFileReverseChange.click();
-            return false;
-        },
         onFileVehicleChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'vehicle');
+            imgPreview(this, files[0], 'imageVehicle');
+            this.$refs.onFileVehicleChange.value = '';
+            this.dialogPlateNum = '';
+            this.dialogOwner = '';
+            this.dialogEngineNum = '';
         },
         onCarFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'carFront');
+            imgPreview(this, files[0], 'imageCarFront');
+            this.$refs.onCarFrontChange.value = '';
         },
         _checkRules(val, tit) {
             let that = this;
@@ -227,61 +655,97 @@ export default {
         onDelete(f){
             this[f] = '';
         },
-        createImage(file, flag) {
-            if (typeof FileReader === 'undefined') {
-                alert('您的浏览器不支持图片上传，请升级您的浏览器');
-                return false;
-            }
-            let image = new Image();
-            let that = this;
-            let leng = file.length;
-            let reader = new FileReader();
-            reader.readAsDataURL(file[0]);
-            reader.onload = function (e) {
-                if(flag == 'carFront'){
-                    that.imageCarFront = e.target.result;
-                }else if(flag == 'vehicle'){
-                    that.imageVehicle = e.target.result;
-                }
-            };
+        getCardRun(val) {
+            this.plateNum = val.plateNum;
+            this.ownerName = val.owner;
+            this.engineNum = val.engineNum;
+            this.identifyCode = val.discernCode;
+            this.confirmRunShow = val.thisShow;
         },
-        uploadImage: function () {
-            console.log(this.images);
-            return false;
-            var obj = {};
-            obj.images = this.images
-            // $.ajax({
-            //     type: 'post',
-            //     url: "upload.php",
-            //     data: obj,
-            //     dataType: "json",
-            //     success: function(data) {
-            //         if(data.status){
-            //             alert(data.msg);
-            //             return false;
-            //         }else{
-            //             alert(data.msg);
-            //             return false;
-            //         }
-            //     }
-            //   });
+        clossRun(val) {
+            this.confirmRunShow = val;
+            this.plateNum = '';
+            this.ownerName = '';
+            this.engineNum = '';
+            this.identifyCode = '';
+        },
+        clearStorage() {
+            localStorage.removeItem('xiaohei_driver_uId');
+            localStorage.removeItem('xiaohei_driver_real_name');
+            localStorage.removeItem('xiaohei_driver_id_card_number');
+            localStorage.removeItem('xiaohei_driver_id_card_front_path');
+            localStorage.removeItem('xiaohei_driver_id_card_inverse_path');
+            localStorage.removeItem('xiaohei_driver_id_card_expiry_date');
+            localStorage.removeItem('xiaohei_driver_address');
+            localStorage.removeItem('xiaohei_driver_tel_phone');
+            localStorage.removeItem('xiaohei_driver_driving_type');
+            localStorage.removeItem('xiaohei_driver_driving_licence_path');
+            localStorage.removeItem('xiaohei_driver_dirving_licence_expiry_date');
+            localStorage.removeItem('xiaohei_driver_fleets');
         }
     }
 }
 </script>
 <style lang="scss" scoped>
     .reg-personal{
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        // position: absolute;
+        // top: 0;
+        // left: 0;
+        // right: 0;
+        // bottom: 0;
         background-color: #fff;
-        display: flex;
-        flex-direction: column;
+        // display: flex;
+        // flex-direction: column;
+        .warn-dialog{
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            .warn-message{
+                position: absolute;
+                width: 80%;
+                height: 100px;
+                background: #fff;
+                top: 30%;
+                left: 10%;
+                border-radius: 10px;
+                padding: 20px 0;
+                h3{
+                    text-align: center;
+                    height: 24px;
+                    line-height: 24px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    color: #DB050D;
+                }
+                ul{
+                    display: flex;
+                    margin-top: 20px;
+                    li{
+                        flex: 1;
+                        text-align: center;
+                        button{
+                            border: none;
+                            width: 60px;
+                            height: 30px;
+                            border-radius: 8px;
+                            color: #fff;
+                            &.onSkip{
+                                background: #D84C47;
+                            }
+                            &.noSkip{
+                                background: #3BAD3B;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         .reg-personal-content{
-            overflow: hidden;
-            flex: 1;
+            // overflow: hidden;
+            // flex: 1;
             ul{
                 width: 94%;
                 padding: 20px 3% 0;

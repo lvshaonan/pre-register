@@ -34,7 +34,8 @@ export default {
       return {
         typeData: {
             typeVal: '罐车',
-            isShow: false
+            isShow: false,
+            index:0
         },
         otherVal: '',
         currentIndex: 0
@@ -64,6 +65,7 @@ export default {
             if(this.currentIndex == 4){
                 this.typeData.typeVal = this.otherVal;
             }
+            this.typeData.index = this.currentIndex;
             this.$emit('vehicleType', this.typeData);
         }
     },
@@ -82,6 +84,7 @@ export default {
         left: 0;
         right: 0;
         bottom: 0;
+        z-index: 999;
         background-color: #fff;
         .vehicle-type-content{
             padding-top: 28px;

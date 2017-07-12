@@ -7,7 +7,7 @@
                         <span class="item"><b>&lowast;</b>身份证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
-                            <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
+                            <input type="file" @change="onFileFrontChange" style="display: none;" ref="onFileFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageFront">
                                 <img :src="imageFront" alt="" >
                                 <b class="delete" @click="onDelete('imageFront')"></b>
@@ -15,6 +15,9 @@
                             <span class="img-wrapper" v-else>
                                 <img src="./u111.png" alt="" >
                                 <i>示例照片</i>
+                                <span class="img-upload" v-show="isUpload">
+                                    <i></i>
+                                </span>
                             </span>
                         </span>
                     </li>
@@ -22,7 +25,7 @@
                         <span class="item"><b>&lowast;</b>身份证反面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
-                            <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
+                            <input type="file" @change="onFileReverseChange" style="display: none;" ref="onFileReverseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageReverse">
                                 <img :src="imageReverse" alt="" >
                                 <b class="delete" @click="onDelete('imageReverse')"></b>
@@ -30,6 +33,9 @@
                             <span class="img-wrapper" v-else>
                                 <img src="./u125.jpg" alt="" >
                                 <i>示例照片</i>
+                                <span class="img-upload" v-show="isUpload1">
+                                    <i></i>
+                                </span>
                             </span>
                         </span>
                     </li>
@@ -54,13 +60,14 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>身份证有效期</span>
                         <span class="item-value">
-                            <date-picker @sendDate="getValidity"></date-picker>
+                            <!--<date-picker @sendDate="getValidity" :time="backDate"></date-picker>-->
+                            <input type="text" v-model="validity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="number" v-model="phoneNum">
+                            <input type="text" v-model="phoneNum" @keyup="checkPhoneNum">
                         </span>
                     </li>
                     <li class="submit-li">
@@ -70,19 +77,29 @@
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
-            <loading v-show="isSubmitSuccess"></loading>
+            <loading v-show="isLoadingShow" :title="loadingTit"></loading>
+            <v-confirmfront @clossFront="clossFront" @idCardFront="getIdCardFront" v-show="idCardFrontDialog" :name="idCardFrontDialogName" :cardId="idCardFrontDialogId" :cardAddress="idCardFrontDialogAddress"></v-confirmfront>
+            <confirmReverse @clossRe="clossRe" @idCardRe="getIdCardRe" v-show="idCardReDialog" :idCardEndTime="idCardEndTime"></confirmReverse>
+            <validation v-show="isValidationShow"></validation>
         </div>
     </transition>
 </template>
 <script>
 import dialog from '../../base/dialog/dialog';
-import datePicker from '../../base/datePicker/datePicker';
 import loading from '../../base/loading/loading';
+import validation from '../../base/validation/validation';
+import axios from 'axios';
+import {api} from '../../api/api.js';
+import {imgPreview} from '../../common/js/compress.js';
+import confirmFront from '../../base/confirm/confirmFront';
+import confirmReverse from '../../base/confirm/confirmReverse';
+import {is_weixn, isIPHONE, is_QQ} from '../../common/js/isIphone.js';
 export default {
     data() {
         return {
-            isSubmitSuccess: false,
+            isLoadingShow: false,
             imageFront: '',
+            imageFrontFinal: '',
             imageReverse: '',
             isDialogShow:false,
             dialogTit: '',
@@ -90,16 +107,47 @@ export default {
             userId: '',
             address: '',
             validity: '',
-            phoneNum: ''
+            phoneNum: '',
+            uId: '',
+            imageFrontPath: '',
+            imageReversePath: '',
+            picValue: '',
+            isUpload:false,
+            isUpload1:false,
+            backDate: '',
+            loadingTit: '',
+            idCardFrontDialogName: '',
+            idCardFrontDialogId: '',
+            idCardFrontDialogAddress: '',
+            idCardFrontDialog: false,
+            idCardReDialog: false,
+            idCardEndTime: '',
+            isFrontSuccess:false,
+            isReSuccess:false,
+            isValidationShow:false,
+            submitAgain:false,
+            temporaryUserName: '',
+            temporaryUserId: ''
         }
     },
     created() {
         document.title = '完善信息';
     },
+    mounted() {
+        this.uId = localStorage.getItem('xiaohei_personal_uId');
+        if(!isIPHONE){
+            if(is_weixn() || is_QQ()){
+                this.$refs.onFileFrontChange.setAttribute("capture","camera");
+                this.$refs.onFileReverseChange.setAttribute("capture","camera");
+            }
+        }
+    },
     components: {
         'v-dialog': dialog,
-        datePicker,
-        loading
+        loading,
+        'v-confirmfront' :confirmFront,
+        confirmReverse,
+        validation
     },
     methods: {
         toSubmit() {
@@ -116,26 +164,115 @@ export default {
                 return;
             }
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+            if(!this.isFrontSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传身份证正面';
+                return;
+            }
+            if(!this.isReSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传身份证背面';
+                return;
+            }
+            if((this.temporaryUserName != this.userName) || (this.temporaryUserId != this.userId)){
+                this.submitAgain = false;
+            }
+            if(this.submitAgain){
+                this.isValidationShow = true;
+                return;
+            }
             //ajax...
-            this.isSubmitSuccess = true;
-            setTimeout(() => {
-                this.isSubmitSuccess = false;
-                this.isMarkShow = true;
-                this.$router.replace('/successfully');
-            }, 2000);
+            this.isLoadingShow = true;
+            axios({
+                method: 'post',
+                url: api + '/u/register/user/authc',
+                data: {
+                    uid: this.uId,
+                    real_name: this.userName,
+                    id_card_number:this.userId,
+                    id_card_front_pic:this.imageFrontPath,
+                    id_card_inverse_pic:this.imageReversePath,
+                    id_card_expiry_date:this.validity,
+                    address:this.address,
+                    tel_phone:this.phoneNum
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                console.log(res.data);
+                this.isLoadingShow = false;
+                if(res.data.code === 0){
+                    this.$router.replace('/successfully');
+                    localStorage.removeItem('xiaohei_personal_uId');
+                }else if(res.data.code == 2){
+                    this.isValidationShow = true;
+                    this.submitAgain = true;
+                    this.temporaryUserName = this.userName;
+                    this.temporaryUserId = this.userId;
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    localStorage.removeItem('xiaohei_personal_uId');
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isLoadingShow = false;
+                setTimeout(() => {
+                    this.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error);
+                localStorage.removeItem('xiaohei_personal_uId');
+            });
         },
-        getValidity(val) {
-            this.validity = val;
+        //接收正面信息
+        getIdCardFront(val) {
+            this.userName = val.name;
+            this.userId = val.cardId;
+            this.address = val.cardAddress;
+            this.idCardFrontDialog = val.thisShow;
+        },
+        clossFront(val) {
+            this.idCardFrontDialog = val;
+            this.userName = '';
+            this.userId = '';
+            this.address = '';
+        },
+        clossRe(val) {
+            this.idCardReDialog = val;
+            this.validity = '';
+        },
+        getIdCardRe(val) {
+            this.validity = val.idCardEndTime;
+            this.idCardReDialog = val.thisShow;
         },
         onDelete(f){
             this[f] = '';
         },
         addPicFront(e){
+            this.imageFront = '';
             e.preventDefault();
             this.$refs.onFileFrontChange.click();
             return false;
         },
         addPicReverse(e){
+            this.imageRevserse = '';
             e.preventDefault();
             this.$refs.onFileReverseChange.click();
             return false;
@@ -143,30 +280,21 @@ export default {
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'front');
+            imgPreview(this, files[0], 'imageFront');
+            this.$refs.onFileFrontChange.value = '';
+            this.idCardFrontDialogName = '';
+            this.idCardFrontDialogId = '';
+            this.idCardFrontDialogAddress = '';
         },
         onFileReverseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'reverse');
+            imgPreview(this, files[0], 'imageReverse');
+            this.$refs.onFileReverseChange.value = '';
+            this.idCardEndTime = '';
         },
-        createImage(file, flag) {
-            if (typeof FileReader === 'undefined') {
-                alert('您的浏览器不支持图片上传，请升级您的浏览器');
-                return false;
-            }
-            let image = new Image();
-            let that = this;
-            let leng = file.length;
-            let reader = new FileReader();
-            reader.readAsDataURL(file[0]);
-            reader.onload = function (e) {
-                if(flag == 'front'){
-                    that.imageFront = e.target.result;
-                }else if(flag == 'reverse'){
-                    that.imageReverse = e.target.result;
-                }
-            };
+        checkPhoneNum() {
+            this.phoneNum = this.phoneNum.replace(/[^-\/\d]/g,'');
         },
         _checkRules(val, tit) {
             let that = this;
@@ -177,34 +305,25 @@ export default {
                 this.dialogTit = tit;
                 return true;
             }
-        },
-        uploadImage: function () {
-            console.log(this.images);
-            return false;
-            var obj = {};
-            obj.images = this.images
-            // $.ajax({
-            //     type: 'post',
-            //     url: "upload.php",
-            //     data: obj,
-            //     dataType: "json",
-            //     success: function(data) {
-            //         if(data.status){
-            //             alert(data.msg);
-            //             return false;
-            //         }else{
-            //             alert(data.msg);
-            //             return false;
-            //         }
-            //     }
-            //   });
-        }
+        }  
     },
     watch: {
         isDialogShow() {
             if(this.isDialogShow) {
                 setTimeout(() => {
                     this.isDialogShow = false
+                }, 2000);
+            }
+        },
+        isLoadingShow() {
+            if(!this.isLoadingShow){
+                this.loadingTit = '';
+            }
+        },
+        isValidationShow() {
+            if(this.isValidationShow){
+                setTimeout(() => {
+                    this.isValidationShow = false
                 }, 2000);
             }
         }
@@ -268,7 +387,7 @@ export default {
                             height: 100%;
                             width: 64%;
                             flex: 7;
-                            
+                            position: relative;
                             input{
                                 width: 100%;
                                 height: 100%;
@@ -288,7 +407,7 @@ export default {
                                 font-size: 24px;
                                 vertical-align: middle;
                             }
-                            .img-wrapper{
+                            .img-wrapper, .img-upload{
                                 position: relative;
                                 width: 66px;
                                 height: 54px;
@@ -320,6 +439,24 @@ export default {
                                     font-size: 14px;
                                     font-style: normal;
                                     text-align: center;
+                                }
+                            }
+                            .img-upload{
+                                margin: 0;
+                                background: #fff;
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                z-index: 999;
+                                i{
+                                    width: 20px;
+                                    height: 20px;
+                                    left: 50%;
+                                    top: 50%;
+                                    margin: -10px 0 0 -10px;
+                                    background: url(../../assets/imgUpLoad.gif);
+                                    background-size: cover;
+                                    z-index: 999;
                                 }
                             }
                         }

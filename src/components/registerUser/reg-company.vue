@@ -7,7 +7,7 @@
                         <span class="item"><b>&lowast;</b>营业执照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addLicense">+</a>
-                            <input type="file" @change="onFileLicenseChange" multiple style="display: none;" ref="onFileLicenseChange" accept="image/*">
+                            <input type="file" @change="onFileLicenseChange" style="display: none;" ref="onFileLicenseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageLicense">
                                 <img :src="imageLicense" alt="" >
                                 <b class="delete" @click="onDelete('imageLicense')"></b>
@@ -39,14 +39,15 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <date-picker @sendDate="getvalidity"></date-picker>
+                            <!--<date-picker @sendDate="getvalidity" :time="sendValidity"></date-picker>-->
+                            <input type="text" v-model="validity">
                         </span>
                     </li>
                     <li class="input-img">
                         <span class="item"><b>&lowast;</b>身份证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
-                            <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
+                            <input type="file" @change="onFileFrontChange" style="display: none;" ref="onFileFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageFront">
                                 <img :src="imageFront" alt="" >
                                 <b class="delete" @click="onDelete('imageFront')"></b>
@@ -61,7 +62,7 @@
                         <span class="item"><b>&lowast;</b>身份证反面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
-                            <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
+                            <input type="file" @change="onFileReverseChange" style="display: none;" ref="onFileReverseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageReverse">
                                 <img :src="imageReverse" alt="" >
                                 <b class="delete" @click="onDelete('imageReverse')"></b>
@@ -93,13 +94,14 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <date-picker @sendDate="getuserIdValidity"></date-picker>
+                            <!--<date-picker @sendDate="getuserIdValidity" :time="backDate"></date-picker>-->
+                            <input type="text" v-model="userIdValidity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="number" v-model="phoneNum">
+                            <input type="text" v-model="phoneNum" @keyup="checkPhoneNum">
                         </span>
                     </li>
                     <li class="submit-li">
@@ -112,19 +114,30 @@
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
-            <loading v-show="isSubmitSuccess"></loading>
+            <loading v-show="isLoadingShow" :title="loadingTit"></loading>
+            <v-confirmfront @clossFront="clossFront" @idCardFront="getIdCardFront" v-show="idCardFrontDialog" :name="idCardFrontDialogName" :cardId="idCardFrontDialogId" :cardAddress="idCardFrontDialogAddress"></v-confirmfront>
+            <confirmReverse @clossRe="clossRe" @idCardRe="getIdCardRe" v-show="idCardReDialog" :idCardEndTime="idCardEndTime"></confirmReverse>
+            <confirmBusiness @businessCard="getBusinessCard" v-show="dialogBusinessShow" :name="dialogName" :companyNum="dialogCompanyNum" :EndTime="dialogEndTime" :code="dialogCode" @clossBusiness="clossBusiness"></confirmBusiness>
+            <validation v-show="isValidationShow"></validation>
         </div>
     </transition>
 </template>
 <script>
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
-import datePicker from '../../base/datePicker/datePicker';
 import loading from '../../base/loading/loading';
+import validation from '../../base/validation/validation';
+import axios from 'axios';
+import {api} from '../../api/api.js';
+import {imgPreview} from '../../common/js/compress.js';
+import confirmFront from '../../base/confirm/confirmFront';
+import confirmReverse from '../../base/confirm/confirmReverse';
+import confirmBusiness from '../../base/confirm/confirmBusiness';
+import {is_weixn, isIPHONE, is_QQ} from '../../common/js/isIphone.js';
 export default {
     data() {
         return {
-            isSubmitSuccess: false,
+            isLoadingShow: false,
             imageFront: '',
             imageReverse: '',
             imageLicense: '',
@@ -138,7 +151,32 @@ export default {
             userId: '',
             address: '',
             userIdValidity: '',
-            phoneNum: ''
+            phoneNum: '',
+            uId: '',
+            imageReversePath: '',
+            imageFrontPath: '',
+            imageLicensePath: '',
+            backDate: '',
+            sendValidity: '',
+            loadingTit: '',
+            idCardFrontDialogName: '',
+            idCardFrontDialogId: '',
+            idCardFrontDialogAddress: '',
+            idCardFrontDialog: false,
+            idCardReDialog: false,
+            idCardEndTime: '',
+            dialogBusinessShow: false,
+            dialogName: '',
+            dialogCompanyNum: '',
+            dialogEndTime: '',
+            isFrontSuccess:false,
+            isReSuccess:false,
+            isBusinessSuccess:false,
+            dialogCode: '',
+            isValidationShow:false,
+            submitAgain:false,
+            temporaryUserName: '',
+            temporaryUserId: ''
         }
     },
     created() {
@@ -146,13 +184,21 @@ export default {
     },
     components: {
         'v-dialog': dialog,
-        datePicker,
-        loading
+        loading,
+        'v-confirmfront' :confirmFront,
+        confirmReverse,
+        confirmBusiness,
+        validation
     },
     mounted() {
-        this.$nextTick(() => {
-            this._initScroll();
-        });
+        this.uId = localStorage.getItem('xiaohei_enterprise_uId');
+        if(!isIPHONE){
+            if(is_weixn() || is_QQ()){
+                this.$refs.onFileFrontChange.setAttribute("capture","camera");
+                this.$refs.onFileReverseChange.setAttribute("capture","camera");
+                this.$refs.onFileLicenseChange.setAttribute("capture","camera");
+            }
+        }
     },
     methods: {
         toSubmit() {
@@ -172,21 +218,133 @@ export default {
                 return;
             }
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+            if(!this.isFrontSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传身份证正面';
+                return;
+            }
+            if(!this.isReSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传身份证背面';
+                return;
+            }
+            if(!this.isBusinessSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传营业执照';
+                return;
+            }
+            if((this.temporaryUserName != this.userName) || (this.temporaryUserId != this.userId)){
+                this.submitAgain = false;
+            }
+            if(this.submitAgain){
+                this.isValidationShow = true;
+                return;
+            }
             // ajax...
-            this.isSubmitSuccess = true;
-            setTimeout(() => {
-                this.isSubmitSuccess = false;
-                this.$router.replace('/successfully');
-            }, 2000);
+            this.isLoadingShow = true;
+            axios({
+                method: 'post',
+                url: api+'/u/register/company/authc',
+                data: {
+                    uid: this.uId,
+                    real_name: this.name,
+                    id_card_number: this.userId,
+                    id_card_front_pic: this.imageFrontPath,
+                    id_card_inverse_pic: this.imageReversePath,
+                    id_card_expiry_date: this.userIdValidity,
+                    address: this.address,
+                    tel_phone: this.phoneNum,
+                    company_name: this.companyName,
+                    company_address: this.address,
+                    business_license_number: this.licenseCode,
+                    business_license_pic: this.imageLicensePath,
+                    business_license_expiry_date: this.validity,
+                    legal_person: this.legalPerson
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                this.isLoadingShow = false;
+                if(res.data.code === 0){
+                    this.$router.replace('/successfully');
+                    localStorage.removeItem('xiaohei_enterprise_uId');
+                }else if(res.data.code == 2){
+                    this.isValidationShow = true;
+                    this.submitAgain = true;
+                    this.temporaryUserName = this.userName;
+                    this.temporaryUserId = this.userId;
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    localStorage.removeItem('xiaohei_enterprise_uId');
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isLoadingShow = false;
+                setTimeout(() => {
+                    this.isDialogShow = true;
+                },100);
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error);
+                localStorage.removeItem('xiaohei_enterprise_uId');
+            });
+
         },
         onDelete(f){
             this[f] = '';
         },
-        getuserIdValidity(val) {
-            this.userIdValidity = val;
+        //接收正面信息
+        getIdCardFront(val) {
+            this.name = val.name;
+            this.userId = val.cardId;
+            this.address = val.cardAddress;
+            this.idCardFrontDialog = val.thisShow;
         },
-        getvalidity(val) {
-            this.validity = val;
+        clossBusiness(val){
+            this.dialogBusinessShow = val;
+            this.companyName = '';
+            this.legalPerson = '';
+            this.validity = '';
+            this.licenseCode = '';
+        },
+        clossFront(val) {
+            this.idCardFrontDialog = val;
+            this.userName = '';
+            this.userId = '';
+            this.address = '';
+        },
+        clossRe(val) {
+            this.idCardReDialog = val;
+            this.userIdValidity = '';
+        },
+        getIdCardRe(val) {
+            this.userIdValidity = val.idCardEndTime;
+            this.idCardReDialog = val.thisShow;
+        },
+        getBusinessCard(val){
+            this.companyName = val.companyNum;
+            this.legalPerson = val.name;
+            this.validity = val.EndTime;
+            this.licenseCode = val.code;
+            this.dialogBusinessShow = val.thisShow;
         },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
@@ -211,17 +369,31 @@ export default {
         onFileLicenseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'license');
+            imgPreview(this, files[0], 'imageLicense');
+            this.$refs.onFileLicenseChange.value = '';
+            this.dialogName = '';
+            this.dialogCompanyNum = '';
+            this.dialogEndTime = '';
+            this.dialogCode = '';
         },
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'front');
+            imgPreview(this, files[0], 'imageFront');
+            this.$refs.onFileFrontChange.value = '';
+            this.idCardFrontDialogName = '';
+            this.idCardFrontDialogId = '';
+            this.idCardFrontDialogAddress = '';
         },
         onFileReverseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'reverse');
+            imgPreview(this, files[0], 'imageReverse');
+            this.$refs.onFileReverseChange.value = '';
+            this.idCardEndTime = '';
+        },
+        checkPhoneNum() {
+            this.phoneNum = this.phoneNum.replace(/[^-\/\d]/g,'');
         },
         _checkRules(val, tit) {
             let that = this;
@@ -232,47 +404,6 @@ export default {
                 this.dialogTit = tit;
                 return true;
             }
-        },
-        createImage(file, flag) {
-            if (typeof FileReader === 'undefined') {
-                alert('您的浏览器不支持图片上传，请升级您的浏览器');
-                return false;
-            }
-            let image = new Image();
-            let that = this;
-            let leng = file.length;
-            let reader = new FileReader();
-            reader.readAsDataURL(file[0]);
-            reader.onload = function (e) {
-                if(flag == 'front'){
-                    that.imageFront = e.target.result;
-                }else if(flag == 'reverse'){
-                    that.imageReverse = e.target.result;
-                }else if(flag == 'license'){
-                    that.imageLicense = e.target.result;
-                }
-            };
-        },
-        uploadImage: function () {
-            console.log(this.images);
-            return false;
-            var obj = {};
-            obj.images = this.images
-            // $.ajax({
-            //     type: 'post',
-            //     url: "upload.php",
-            //     data: obj,
-            //     dataType: "json",
-            //     success: function(data) {
-            //         if(data.status){
-            //             alert(data.msg);
-            //             return false;
-            //         }else{
-            //             alert(data.msg);
-            //             return false;
-            //         }
-            //     }
-            //   });
         }
     },
     watch: {
@@ -282,23 +413,35 @@ export default {
                     this.isDialogShow = false
                 }, 2000);
             }
+        },
+        isLoadingShow() {
+            if(!this.isLoadingShow){
+                this.loadingTit = '';
+            }
+        },
+        isValidationShow() {
+            if(this.isValidationShow){
+                setTimeout(() => {
+                    this.isValidationShow = false
+                }, 2000);
+            }
         }
     }
 }
 </script>
 <style lang="scss" scoped>
     .reg-personal{
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        // position: absolute;
+        // top: 0;
+        // left: 0;
+        // right: 0;
+        // bottom: 0;
         background-color: #fff;
-        display: flex;
-        flex-direction: column;
+        // display: flex;
+        // flex-direction: column;
         .reg-personal-content{
-            overflow: hidden;
-            flex: 1;
+            // overflow: hidden;
+            // flex: 1;
             ul{
                 width: 94%;
                 padding: 20px 3% 0;

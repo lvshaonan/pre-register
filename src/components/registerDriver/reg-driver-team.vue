@@ -7,7 +7,7 @@
                         <span class="item"><b>&lowast;</b>身份证正面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicFront">+</a>
-                            <input type="file" @change="onFileFrontChange" multiple style="display: none;" ref="onFileFrontChange" accept="image/*">
+                            <input type="file" @change="onFileFrontChange" style="display: none;" ref="onFileFrontChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageFront">
                                 <img :src="imageFront" alt="" >
                                 <b class="delete" @click="onDelete('imageFront')"></b>
@@ -22,7 +22,7 @@
                         <span class="item"><b>&lowast;</b>身份证反面照</span>
                         <span class="item-value">
                             <a href="javascript:" class="input-img-btn" v-on:click="addPicReverse">+</a>
-                            <input type="file" @change="onFileReverseChange" multiple style="display: none;" ref="onFileReverseChange" accept="image/*">
+                            <input type="file" @change="onFileReverseChange" style="display: none;" ref="onFileReverseChange" accept="image/*">
                             <span class="img-wrapper" v-if="imageReverse">
                                 <img :src="imageReverse" alt="" >
                                 <b class="delete" @click="onDelete('imageReverse')"></b>
@@ -54,13 +54,13 @@
                     <li>
                         <span class="item"><b>&nbsp;&nbsp;</b>有效期</span>
                         <span class="item-value">
-                            <date-picker @sendDate="getuserIdvalidity"></date-picker>
+                            <input type="text" v-model="userIdvalidity">
                         </span>
                     </li>
                     <li>
                         <span class="item"><b>&lowast;</b>联系电话</span>
                         <span class="item-value">
-                            <input type="number" v-model="phoneNum">
+                            <input type="text" v-model="phoneNum" @keyup="checkPhoneNum">
                         </span>
                     </li>
                     <li class="submit-li">
@@ -70,7 +70,9 @@
                 </ul>
             </div>
             <v-dialog :title="dialogTit" v-show="isDialogShow"></v-dialog>
-            <loading v-show="isLoadingShow"></loading>
+            <loading v-show="isLoadingShow" :title="loadingTit"></loading>
+            <v-confirmfront @clossFront="clossFront" @idCardFront="getIdCardFront" v-show="idCardFrontDialog" :name="idCardFrontDialogName" :cardId="idCardFrontDialogId" :cardAddress="idCardFrontDialogAddress"></v-confirmfront>
+            <confirmReverse @clossRe="clossRe" @idCardRe="getIdCardRe" v-show="idCardReDialog" :idCardEndTime="idCardEndTime"></confirmReverse>
         </div>
     </transition>
 </template>
@@ -78,7 +80,12 @@
 import BScroll from 'better-scroll';
 import dialog from '../../base/dialog/dialog';
 import loading from '../../base/loading/loading';
-import datePicker from '../../base/datePicker/datePicker';
+import axios from 'axios';
+import {api} from '../../api/api.js';
+import {imgPreview} from '../../common/js/compress.js';
+import confirmFront from '../../base/confirm/confirmFront';
+import confirmReverse from '../../base/confirm/confirmReverse';
+import {is_weixn, isIPHONE, is_QQ} from '../../common/js/isIphone.js';
 export default {
     data() {
         return {
@@ -87,6 +94,8 @@ export default {
             dialogTit: '',
             imageFront: '',
             imageReverse: '',
+            imageFrontPath: '',
+            imageReversePath: '',
             imageBusinessLicense: '',
             imageDangerous: '',
             imageRoad: '',
@@ -96,21 +105,38 @@ export default {
             name: '',
             userId: '',
             address: '',
-            phoneNum: ''
+            phoneNum: '',
+            backDate: '',
+            uId: '',
+            userIdvalidity: '',
+            idCardFrontDialogName: '',
+            idCardFrontDialogId: '',
+            idCardFrontDialogAddress: '',
+            idCardFrontDialog: false,
+            idCardReDialog: false,
+            idCardEndTime: '',
+            loadingTit: '',
+            isFrontSuccess:false,
+            isReSuccess:false
         }
     },
     created() {
         document.title = '车队认证';
     },
     mounted() {
-        this.$nextTick(() => {
-            this._initScroll();
-        });
+        this.uId = localStorage.getItem('xiaohei_driver_team_uId');
+        if(!isIPHONE){
+            if(is_weixn() || is_QQ()){
+                this.$refs.onFileFrontChange.setAttribute("capture","camera");
+                this.$refs.onFileReverseChange.setAttribute("capture","camera");
+            }
+        }
     },
     components: {
         'v-dialog': dialog,
         loading,
-        datePicker
+        'v-confirmfront' :confirmFront,
+        confirmReverse
     },
     watch: {
         isDialogShow() {
@@ -119,7 +145,13 @@ export default {
                     this.isDialogShow = false
                 }, 2000);
             }
-        }
+        },
+        isLoadingShow() {
+            if(!this.isLoadingShow){
+                this.loadingTit = '';
+            }
+        },
+      
     },
     methods: {
         toSubmit() {
@@ -136,24 +168,50 @@ export default {
                 return;
             }
             if(this._checkRules(this.phoneNum, '请填写联系电话')) return;
+            if(!this.isFrontSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传身份证正面';
+                return;
+            }
+            if(!this.isReSuccess){
+                setTimeout(() => {
+                    that.isDialogShow = true;
+                },100);
+                this.dialogTit = '请重新上传身份证背面';
+                return;
+            }
             //ajax...
-            this.isLoadingShow = true;
-            setTimeout(() => {
-                this.isLoadingShow = false;
-                this.$router.push('/enterpriseInfo');
-            }, 1500);
+            localStorage.setItem('xiaohei_driver_team_real_name', this.name);
+            localStorage.setItem('xiaohei_driver_team_id_card_number', this.userId);
+            localStorage.setItem('xiaohei_driver_team_id_card_front_pic', this.imageFrontPath);
+            localStorage.setItem('xiaohei_driver_team_id_card_inverse_pic', this.imageReversePath);
+            localStorage.setItem('xiaohei_driver_team_id_card_expiry_date', this.userIdvalidity);
+            localStorage.setItem('xiaohei_driver_team_address', this.address);
+            localStorage.setItem('xiaohei_driver_team_tel_phone', this.phoneNum);
+            this.$router.push('/enterpriseInfo');
         },
-        getDangerousValidity(val) {
-            this.DangerousValidity = val;
+        //接收正面信息
+        getIdCardFront(val) {
+            this.name = val.name;
+            this.userId = val.cardId;
+            this.address = val.cardAddress;
+            this.idCardFrontDialog = val.thisShow;
         },
-        getuserIdvalidity(val) {
-            this.userIdvalidity = val;
+        getIdCardRe(val) {
+            this.userIdvalidity = val.idCardEndTime;
+            this.idCardReDialog = val.thisShow;
         },
-        getyingyeValidity(val) {
-            this.yingyeValidity = val;
+        clossFront(val) {
+            this.idCardFrontDialog = val;
+            this.name = '';
+            this.userId = '';
+            this.address = '';
         },
-        getRoadValidity(val) {
-            this.RoadValidity = val;
+        clossRe(val) {
+            this.idCardReDialog = val;
+            this.userIdvalidity = '';
         },
         _initScroll() {
             this.scroll = new BScroll(this.$refs.scrollWrapper, {
@@ -162,11 +220,6 @@ export default {
         },
         onDelete(f){
             this[f] = '';
-        },
-        addBusinessLicense(e){
-            e.preventDefault();
-            this.$refs.onBusinessLicenseChange.click();
-            return false;
         },
         addPicFront(e){
             e.preventDefault();
@@ -178,40 +231,24 @@ export default {
             this.$refs.onFileReverseChange.click();
             return false;
         },
-        addDangerous(e) {
-            e.preventDefault();
-            this.$refs.onFileDangerousChange.click();
-            return false;
-        },
-        addRoad(e){
-            e.preventDefault();
-            this.$refs.onFileRoadChange.click();
-            return false;
-        },
-        onBusinessLicenseChange(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length) return;
-            this.createImage(files, 'BusinessLicense');
-        },
         onFileFrontChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'front');
+            imgPreview(this, files[0], 'imageFront');
+            this.$refs.onFileFrontChange.value = '';
+            this.idCardFrontDialogName = '';
+            this.idCardFrontDialogId = '';
+            this.idCardFrontDialogAddress = '';
         },
         onFileReverseChange(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length) return;
-            this.createImage(files, 'reverse');
+            imgPreview(this, files[0], 'imageReverse');
+            this.$refs.onFileReverseChange.value = '';
+            this.idCardEndTime = '';
         },
-        onFileDangerousChange(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length) return;
-            this.createImage(files, 'dangerous');
-        },
-        onFileRoadChange(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length) return;
-            this.createImage(files, 'road');
+        checkPhoneNum() {
+            this.phoneNum = this.phoneNum.replace(/[^-\/\d]/g,'');
         },
         _checkRules(val, tit) {
             let that = this;
@@ -222,68 +259,23 @@ export default {
                 this.dialogTit = tit;
                 return true;
             }
-        },
-        createImage(file, flag) {
-            if (typeof FileReader === 'undefined') {
-                alert('您的浏览器不支持图片上传，请升级您的浏览器');
-                return false;
-            }
-            let image = new Image();
-            let that = this;
-            let leng = file.length;
-            let reader = new FileReader();
-            reader.readAsDataURL(file[0]);
-            reader.onload = function (e) {
-                if(flag == 'front'){
-                    that.imageFront = e.target.result;
-                }else if(flag == 'reverse'){
-                    that.imageReverse = e.target.result;
-                }else if(flag == 'BusinessLicense'){
-                    that.imageBusinessLicense = e.target.result;
-                }else if(flag == 'dangerous'){
-                    that.imageDangerous = e.target.result;
-                }else if(flag == 'road'){
-                    that.imageRoad = e.target.result;
-                }
-            };
-        },
-        uploadImage: function () {
-            console.log(this.images);
-            return false;
-            var obj = {};
-            obj.images = this.images
-            // $.ajax({
-            //     type: 'post',
-            //     url: "upload.php",
-            //     data: obj,
-            //     dataType: "json",
-            //     success: function(data) {
-            //         if(data.status){
-            //             alert(data.msg);
-            //             return false;
-            //         }else{
-            //             alert(data.msg);
-            //             return false;
-            //         }
-            //     }
-            //   });
         }
     }
 }
 </script>
 <style lang="scss" scoped>
     .reg-personal{
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        // position: absolute;
+        // top: 0;
+        // left: 0;
+        // right: 0;
+        // bottom: 0;
         background-color: #fff;
-        display: flex;
-        flex-direction: column;
+        // display: flex;
+        // flex-direction: column;
         .reg-personal-content{
-            overflow: hidden;
-            flex: 1;
+            // overflow: hidden;
+            // flex: 1;
             ul{
                 width: 94%;
                 padding: 20px 3% 0;

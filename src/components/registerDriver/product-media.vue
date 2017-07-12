@@ -24,8 +24,10 @@ export default {
         otherVal: '',
         dataVal: {
             value: '沥青',
-            isShow: false
-        }
+            isShow: false,
+            index: 0
+        },
+        currentIndex: 0
       }
   },
     created() {
@@ -52,6 +54,7 @@ export default {
             if(this.currentIndex == 2){
                 this.dataVal.value = this.otherVal;
             }
+            this.dataVal.index = this.currentIndex;
             this.$emit('productMedia', this.dataVal);
         }
     },
@@ -71,6 +74,7 @@ export default {
         right: 0;
         bottom: 0;
         background-color: #fff;
+        z-index: 999;
         .product-media-content{
             padding-top: 28px;
             li{

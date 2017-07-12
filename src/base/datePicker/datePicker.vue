@@ -1,6 +1,6 @@
 <template>
   <div class="date-picker" ref="datePicker">
-      <div class="input-picker" @click="timePicker"></div>
+      <div class="input-picker" @click="timePicker">{{time}}</div>
   </div>
 </template>
 <script>
@@ -12,7 +12,10 @@ export default {
         }
     },
     props: {
-        
+        time: {
+            type:String,
+            default: ''
+        }
     },
     mounted() {
     },

@@ -5,7 +5,12 @@ html, body{
     font-family: 'PingFang SC', 'STHeitiSC-Light', 'Helvetica-Light', arial, sans-serif, 'Droid Sans Fallback';
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    overflow: hidden;
+    // overflow: hidden;
+    overflow-y: scroll;
     font-weight: 200;
     font-size: 12px;
+    -webkit-overflow-scrolling: touch;
+}
+::-webkit-scrollbar{
+    display: none;
 }

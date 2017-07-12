@@ -17,12 +17,12 @@
             <div class="slider-item">
                 <img src="../assets/bg2.jpg" alt="">
                 <transition name="btnFade">
-                    <router-link to="/registerUser" tag="div" class="owner" v-show="isBtnShow">
+                    <router-link to="/registerUser" tag="div" class="owner" v-show="isBtnShow" replace>
                         <img src="../assets/btn_03.png" alt="">
                     </router-link>
                 </transition>
                 <transition name="btnFade1">
-                    <router-link to="/regDriver" tag="div" class="driver" v-show="isBtnShow">
+                    <router-link to="/regDriver" tag="div" class="driver" v-show="isBtnShow" replace>
                         <img src="../assets/btn_06.png" alt="">
                     </router-link>
                 </transition>

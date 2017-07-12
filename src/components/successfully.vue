@@ -2,7 +2,9 @@
     <transition name="slider">
         <div class="reg-success">
             <div class="reg-success-content">
-                <div class="bg"></div>
+                <div class="bg">
+                    <img src="../assets/successful.png">
+                </div>
             </div>
         </div>
     </transition>
@@ -38,8 +40,10 @@ export default {
                 width: 60%;
                 height: 100%;
                 left: 20%;
-                background: url(../assets/success.png) no-repeat;
-                background-size: contain;
+                top: 40px;
+                img{
+                    width: 100%;
+                }
             }
         }
     }
