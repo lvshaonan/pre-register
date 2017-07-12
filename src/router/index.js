@@ -5,6 +5,7 @@ import Hello from '@/components/Hello'
 import welcome from '@/components/welcome'
 import successfully from '@/components/successfully'
 import regAgreement from '@/components/reg-agreement'
+import upImg from '@/components/upImg'
 
 import registerUser from '@/components/registerUser/register-user'
 import regPersonal from '@/components/registerUser/reg-personal'
@@ -78,6 +79,11 @@ export default new Router({
       path: '/successfully',
       name: 'successfully',
       component: successfully
+    },
+    {
+      path: '/upImg',
+      name: 'upImg',
+      component: upImg
     }
   ]
 })
