@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import {api} from '../../api/api.js';
 import axios from 'axios';
-=======
->>>>>>> 6045335339b92ce7a4904f53d26a48b1de2137f1
 export function imgPreview (that, file, type) {  
     let self = that;  
     let Orientation;  
@@ -19,7 +16,6 @@ export function imgPreview (that, file, type) {
             img.src = result;  
             //判断图片是否大于100K,是就直接上传，反之压缩图片  
             if (this.result.length <= (100 * 1024)) {  
-<<<<<<< HEAD
                 // self[type] = this.result;
                 if(type == 'imageFront'){
                     upImgFront(self, this.result);
@@ -90,70 +86,11 @@ export function imgPreview (that, file, type) {
                         upImgRun(self, src);
                         // self.imageVehicle = src;
                     }
-=======
-                self[type] = this.result;
-            }else {  
-                img.onload = function () {  
-                    self[type] = compress(img,Orientation);
->>>>>>> 6045335339b92ce7a4904f53d26a48b1de2137f1
                 }  
             }  
         }   
     }  
 }
-<<<<<<< HEAD
-=======
-
-function rotateImg (img, direction,canvas) {  
-        //最小与最大旋转方向，图片旋转4次后回到原方向      
-        const min_step = 0;      
-        const max_step = 3;        
-        if (img == null)return;      
-        //img的高度和宽度不能在img元素隐藏后获取，否则会出错      
-        let height = img.height;      
-        let width = img.width;        
-        let step = 2;      
-        if (step == null) {      
-            step = min_step;      
-        }      
-        if (direction == 'right') {      
-            step++;      
-            //旋转到原位置，即超过最大值      
-            step > max_step && (step = min_step);      
-        } else {      
-            step--;      
-            step < min_step && (step = max_step);      
-        }       
-        //旋转角度以弧度值为参数      
-        let degree = step * 90 * Math.PI / 180;      
-        let ctx = canvas.getContext('2d');      
-        switch (step) {      
-        case 0:      
-            canvas.width = width;      
-            canvas.height = height;      
-            ctx.drawImage(img, 0, 0);      
-            break;      
-        case 1:      
-            canvas.width = height;      
-            canvas.height = width;      
-            ctx.rotate(degree);      
-            ctx.drawImage(img, 0, -height);      
-            break;      
-        case 2:      
-            canvas.width = width;      
-            canvas.height = height;      
-            ctx.rotate(degree);      
-            ctx.drawImage(img, -width, -height);      
-            break;      
-        case 3:      
-            canvas.width = height;      
-            canvas.height = width;      
-            ctx.rotate(degree);      
-            ctx.drawImage(img, -width, 0);      
-            break;  
-        }      
-    }  
->>>>>>> 6045335339b92ce7a4904f53d26a48b1de2137f1
 function compress(img,Orientation) {  
     let canvas = document.createElement("canvas");  
     let ctx = canvas.getContext('2d');  
@@ -196,26 +133,7 @@ function compress(img,Orientation) {
         }  
     } else {  
         ctx.drawImage(img, 0, 0, width, height);  
-<<<<<<< HEAD
     }   
-=======
-    }  
-    //修复ios上传图片的时候 被旋转的问题  
-    if(Orientation != "" && Orientation != 1){  
-        switch(Orientation){  
-        case 6://需要顺时针（向左）90度旋转  
-            this.rotateImg(img,'left',canvas);  
-            break;  
-        case 8://需要逆时针（向右）90度旋转  
-            this.rotateImg(img,'right',canvas);  
-            break;  
-        case 3://需要180度旋转  
-            this.rotateImg(img,'right',canvas);//转两次  
-            this.rotateImg(img,'right',canvas);  
-            break;  
-        }  
-    }  
->>>>>>> 6045335339b92ce7a4904f53d26a48b1de2137f1
     //进行最小压缩  
     let ndata = canvas.toDataURL('image/jpeg', 0.3);  
     console.log('压缩前：' + initSize);  
@@ -223,7 +141,6 @@ function compress(img,Orientation) {
     console.log('压缩率：' + ~~(100 * (initSize - ndata.length) / initSize) + "%");  
     tCanvas.width = tCanvas.height = canvas.width = canvas.height = 0;  
     return ndata;  
-<<<<<<< HEAD
 }
 // 身份证正面
 function upImgFront(that, src) {
@@ -657,6 +574,4 @@ function upImgRun(that, src){
         // },100);
         // that.dialogTit = '服务器错误';
     });
-=======
->>>>>>> 6045335339b92ce7a4904f53d26a48b1de2137f1
 }

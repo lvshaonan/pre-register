@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <template>
     <transition name="slider">
         <div class="reg-success">
@@ -54,57 +53,4 @@ export default {
     .slider-enter-active, .slider-leave-active{
         transition: all 0.2s;
     }
-=======
-<template>
-    <transition name="slider">
-        <div class="reg-success">
-            <div class="reg-success-content">
-                <div class="bg"></div>
-            </div>
-        </div>
-    </transition>
-</template>
-<script>
-import BScroll from 'better-scroll';
-export default {
-    data() {
-        return {
-
-        }
-    },
-    created() {
-        document.title = '注册成功';
-    },
-    methods: {
-    },
-    mounted() {
-    }
-}
-</script>
-<style lang="scss">
-    .reg-success{
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #fff;
-        .reg-success-content{
-            .bg{
-                position: absolute;
-                width: 60%;
-                height: 100%;
-                left: 20%;
-                background: url(../assets/success.png) no-repeat;
-                background-size: contain;
-            }
-        }
-    }
-    .slider-enter, .slider-leave-to{
-        transform: translate3d(100%, 0, 0);
-    }
-    .slider-enter-active, .slider-leave-active{
-        transition: all 0.2s;
-    }
->>>>>>> 6045335339b92ce7a4904f53d26a48b1de2137f1
 </style>
