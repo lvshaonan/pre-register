@@ -23,7 +23,7 @@
                     <input type="checkbox" class="check" v-model="isCheck.state" @click="onCheck(isCheck)">
                     <span class="check-text">
                         已同意
-                        <router-link to="/regAgreement">《小黑师傅》</router-link>
+                        <router-link to="/regAgreementDriver">《小黑师傅》</router-link>
                         注册协议
                     </span>
                 </li>

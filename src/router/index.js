@@ -4,7 +4,8 @@ import Hello from '@/components/Hello'
 
 import welcome from '@/components/welcome'
 import successfully from '@/components/successfully'
-import regAgreement from '@/components/reg-agreement'
+import regAgreementUser from '@/components/reg-agreement-user'
+import regAgreementDriver from '@/components/reg-agreement-driver'
 
 import registerUser from '@/components/registerUser/register-user'
 import regPersonal from '@/components/registerUser/reg-personal'
@@ -35,9 +36,14 @@ export default new Router({
       component: registerUser
     },
     {
-      path: '/regAgreement',
-      name: 'regAgreement',
-      component: regAgreement
+      path: '/regAgreementUser',
+      name: 'regAgreementUser',
+      component: regAgreementUser
+    },
+    {
+      path: '/regAgreementDriver',
+      name: 'regAgreementDriver',
+      component: regAgreementDriver
     },
     {
       path: '/regPersonal',

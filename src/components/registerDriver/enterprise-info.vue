@@ -406,6 +406,8 @@ export default {
             localStorage.removeItem('xiaohei_driver_team_id_card_expiry_date');
             localStorage.removeItem('xiaohei_driver_team_address');
             localStorage.removeItem('xiaohei_driver_team_tel_phone');
+            localStorage.removeItem('xiaohei_shared_first_user');
+            localStorage.removeItem('xiaohei_shared_second_user');
         }
     }
 }

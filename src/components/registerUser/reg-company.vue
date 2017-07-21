@@ -283,6 +283,8 @@ export default {
                 if(res.data.code === 0){
                     this.$router.replace('/successfully');
                     localStorage.removeItem('xiaohei_enterprise_uId');
+                    localStorage.removeItem('xiaohei_shared_first_user');
+                    localStorage.removeItem('xiaohei_shared_second_user');
                 }else if(res.data.code == 2){
                     this.isValidationShow = true;
                     this.submitAgain = true;
@@ -294,6 +296,8 @@ export default {
                     },100);
                     this.dialogTit = res.data.message;
                     localStorage.removeItem('xiaohei_enterprise_uId');
+                    localStorage.removeItem('xiaohei_shared_first_user');
+                    localStorage.removeItem('xiaohei_shared_second_user');
                     return;
                 }
             })
@@ -305,6 +309,8 @@ export default {
                 this.dialogTit = '服务器错误';
                 console.log('错误了'+ error);
                 localStorage.removeItem('xiaohei_enterprise_uId');
+                localStorage.removeItem('xiaohei_shared_first_user');
+                localStorage.removeItem('xiaohei_shared_second_user');
             });
 
         },

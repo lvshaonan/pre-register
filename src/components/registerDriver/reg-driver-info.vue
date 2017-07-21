@@ -682,6 +682,8 @@ export default {
             localStorage.removeItem('xiaohei_driver_driving_licence_path');
             localStorage.removeItem('xiaohei_driver_dirving_licence_expiry_date');
             localStorage.removeItem('xiaohei_driver_fleets');
+            localStorage.removeItem('xiaohei_shared_first_user');
+            localStorage.removeItem('xiaohei_shared_second_user');
         }
     }
 }

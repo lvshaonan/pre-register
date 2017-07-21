@@ -3,7 +3,7 @@
         <div class="reg-success">
             <div class="reg-success-content">
                 <div class="bg">
-                    <img src="../assets/successful.png">
+                     <img src="../assets/successful.png">   
                 </div>
             </div>
         </div>

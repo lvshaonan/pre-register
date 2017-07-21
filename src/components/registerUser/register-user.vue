@@ -23,7 +23,7 @@
                     <input type="checkbox" class="check" v-model="isCheck.state" @click="onCheck(isCheck)">
                     <span class="check-text">
                         已同意
-                        <router-link to="/regAgreement">《小黑师傅》</router-link>
+                        <router-link to="/regAgreementUser">《小黑师傅》</router-link>
                         注册协议
                     </span>
                 </li>
@@ -273,7 +273,7 @@ export default {
                 this.isSubmitSuccess = true;
                 axios({
                     method: 'post',
-                    url: api + '/u/register/user',
+                    url: api + '/u/register/company',
                     data: {
                         mobile: this.phoneNumber,
                         password: this.password,

@@ -12,9 +12,13 @@ export default {
   mounted() {
     if(this.$route.query.shared_first_user != undefined){
       localStorage.setItem('xiaohei_shared_first_user', this.$route.query.shared_first_user);
+    }else{
+      localStorage.removeItem('xiaohei_shared_first_user');
     }
     if(this.$route.query.shared_second_user != undefined){
       localStorage.setItem('xiaohei_shared_second_user', this.$route.query.shared_second_user);
+    }else{
+      localStorage.removeItem('xiaohei_shared_second_user');
     }
   }
 }
