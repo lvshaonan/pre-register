@@ -32,11 +32,11 @@
                 <div class="reg-classes" v-show="isMarkShow">
                     <h2>注册成功，请选择身份</h2>
                     <ul class="classes">
-                        <li @click="selectRole('司机')">
+                        <li @click="selectRole()">
                             <img src="./u409.png">
                             <p>司机</p>
                         </li>
-                        <li @click="selectRole('车队')">
+                        <li @click="selectRole1()">
                             <img src="./u414.png">
                             <p>车队</p>
                         </li>
@@ -253,123 +253,133 @@ export default {
         MarkHide() {
             this.isMarkShow = false;
         },
-        selectRole(role){
-            if(role == '司机'){
-                //ajax...
-                if((this.first != null) || (this.second != null)){
-                    saveShare('02', this.first, this.second, this.phoneNumber);
-                }
-                this.isSubmitSuccess = true;
-                axios({
-                    method: 'post',
-                    url: api + '/d/register/driver',
-                    data: {
-                        mobile: this.phoneNumber,
-                        password: this.password,
-                        captcha: this.verification
-                    },  
-                    transformRequest: [function (data) {
-                        let ret = ''
-                        for (let it in data) {
-                        ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-                        }
-                        return ret
-                    }],
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                })
-                .then((res) => {
-                    console.log(res.data);
-                    this.isMarkShow = false;
-                    this.isSubmitSuccess = false;
-                    if(res.data.code === 0){
-                        this.userId = res.data.data.id;
-                        localStorage.setItem('xiaohei_driver_uId', this.userId);
-                        this.$router.replace('/regDriverPersonal');
-                    }else if(res.data.code === 3011){
-                        console.log(typeof res.data.data.user_type);
-                        if(res.data.data.user_type == 2){
-                            this.userId = res.data.data.uid;
-                            localStorage.setItem('xiaohei_driver_uId', this.userId);
-                            this.$router.replace('/regDriverPersonal');
-                        }else if(res.data.data.user_type == 1){
-                            this.userId = res.data.data.uid;
-                            localStorage.setItem('xiaohei_driver_team_uId', this.userId);
-                            this.$router.replace('/regDriverTeam');
-                        }
-                    }else{
-                        setTimeout(() => {
-                            this.isDialogShow = true;
-                        },100);
-                        this.dialogTit = res.data.message;
-                        return;
-                    }
-                })
-                .catch((error) => {
-                    this.isMarkShow = false;
-                    this.isSubmitSuccess = false;
-                    this.dialogTit = '服务器错误';
-                    console.log('错误了'+ error)
-                });
-            }else if(role == '车队'){
-                //ajax...
-                if((this.first != null) || (this.second != null)){
-                    saveShare('03', this.first, this.second, this.phoneNumber);
-                }
-                this.isSubmitSuccess = true;
-                axios({
-                    method: 'post',
-                    url: api + '/d/register/fleet',
-                    data: {
-                        mobile: this.phoneNumber,
-                        password: this.password,
-                        captcha: this.verification
-                    },  
-                    transformRequest: [function (data) {
-                        let ret = ''
-                        for (let it in data) {
-                        ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-                        }
-                        return ret
-                    }],
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                })
-                .then((res) => {
-                    console.log(res.data);
-                    this.isMarkShow = false;
-                    this.isSubmitSuccess = false;
-                    if(res.data.code === 0){
-                        this.userId = res.data.data.id;
-                        localStorage.setItem('xiaohei_driver_team_uId', this.userId);
-                        this.$router.replace('/regDriverTeam');
-                    }else if(res.data.code === 3011){
-                        if(res.data.data.user_type == 2){
-                            this.userId = res.data.data.uid;
-                            localStorage.setItem('xiaohei_driver_uId', this.userId);
-                            this.$router.replace('/regDriverPersonal');
-                        }else if(res.data.data.user_type == 1){
-                            this.userId = res.data.data.uid;
-                            localStorage.setItem('xiaohei_driver_team_uId', this.userId);
-                            this.$router.replace('/regDriverTeam');
-                        }
-                    }else{
-                        setTimeout(() => {
-                            this.isDialogShow = true;
-                        },100);
-                        this.dialogTit = res.data.message;
-                        return;
-                    }
-                })
-                .catch((error) => {
-                    this.isMarkShow = false;
-                    this.isSubmitSuccess = false;
-                    this.dialogTit = '服务器错误';
-                    console.log('错误'+ error)
-                });
+        selectRole1 (){
+            alert('车队');
+            //ajax...
+            if((this.first != null) || (this.second != null)){
+                saveShare('03', this.first, this.second, this.phoneNumber);
             }
+            this.isSubmitSuccess = true;
+            axios({
+                method: 'post',
+                url: api + '/d/register/fleet',
+                data: {
+                    mobile: this.phoneNumber,
+                    password: this.password,
+                    captcha: this.verification
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                console.log(res.data);
+                this.isMarkShow = false;
+                this.isSubmitSuccess = false;
+                if(res.data.code === 0){
+                    let random = Math.random();
+                    this.userId = res.data.data.id;
+                    localStorage.setItem('xiaohei_driver_team_uId', this.userId);
+                    this.$router.replace('/regDriverTeam?random='+random);
+                }else if(res.data.code === 3011){
+                    // if(res.data.data.user_type == 2){
+                    //     this.userId = res.data.data.uid;
+                    //     localStorage.setItem('xiaohei_driver_uId', this.userId);
+                    //     this.$router.replace('/regDriverPersonal');
+                    // }else if(res.data.data.user_type == 1){
+                    //     this.userId = res.data.data.uid;
+                    //     localStorage.setItem('xiaohei_driver_team_uId', this.userId);
+                    //     this.$router.replace('/regDriverTeam');
+                    // }
+                    let random = Math.random();
+                    this.userId = res.data.data.uid;
+                    localStorage.setItem('xiaohei_driver_team_uId', this.userId);
+                    this.$router.replace('/regDriverTeam?random='+random);
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isMarkShow = false;
+                this.isSubmitSuccess = false;
+                this.dialogTit = '服务器错误';
+                console.log('错误'+ error)
+            });
+        },
+        selectRole(role){
+            alert('司机');
+            //ajax...
+            if((this.first != null) || (this.second != null)){
+                saveShare('02', this.first, this.second, this.phoneNumber);
+            }
+            this.isSubmitSuccess = true;
+            axios({
+                method: 'post',
+                url: api + '/d/register/driver',
+                data: {
+                    mobile: this.phoneNumber,
+                    password: this.password,
+                    captcha: this.verification
+                },  
+                transformRequest: [function (data) {
+                    let ret = ''
+                    for (let it in data) {
+                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                    }
+                    return ret
+                }],
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then((res) => {
+                console.log(res.data);
+                this.isMarkShow = false;
+                this.isSubmitSuccess = false;
+                if(res.data.code === 0){
+                    let random = Math.random();
+                    this.userId = res.data.data.id;
+                    localStorage.setItem('xiaohei_driver_uId', this.userId);
+                    this.$router.replace('/regDriverPersonal?random='+random);
+                }else if(res.data.code === 3011){
+                    // if(res.data.data.user_type == 2){
+                    //     this.userId = res.data.data.uid;
+                    //     localStorage.setItem('xiaohei_driver_uId', this.userId);
+                    //     this.$router.replace('/regDriverPersonal');
+                    // }else if(res.data.data.user_type == 1){
+                    //     this.userId = res.data.data.uid;
+                    //     localStorage.setItem('xiaohei_driver_team_uId', this.userId);
+                    //     this.$router.replace('/regDriverTeam');
+                    // }
+                    let random = Math.random();
+                    this.userId = res.data.data.uid;
+                    localStorage.setItem('xiaohei_driver_uId', this.userId);
+                    this.$router.replace('/regDriverPersonal?random='+random);
+                }else{
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = res.data.message;
+                    return;
+                }
+            })
+            .catch((error) => {
+                this.isMarkShow = false;
+                this.isSubmitSuccess = false;
+                this.dialogTit = '服务器错误';
+                console.log('错误了'+ error)
+            });
         },
         toRegister() {
             if(this.phoneNumber && this.verification && this.password && this.passwordAgain && this.isCheck.state){
