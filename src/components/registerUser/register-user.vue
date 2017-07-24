@@ -96,6 +96,8 @@ export default {
         this.second = localStorage.getItem('xiaohei_shared_second_user');
         localStorage.removeItem('xiaohei_personal_uId');
         localStorage.removeItem('xiaohei_enterprise_uId');
+
+        localStorage.removeItem('xiaohei_index_enter');
     },
     methods: {
         _checkPhoneNumber() {

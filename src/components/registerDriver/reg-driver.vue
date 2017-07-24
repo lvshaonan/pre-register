@@ -89,6 +89,8 @@ export default {
         this.second = localStorage.getItem('xiaohei_shared_second_user');
         localStorage.removeItem('xiaohei_driver_uId');
         localStorage.removeItem('xiaohei_driver_team_uId');
+
+        localStorage.removeItem('xiaohei_index_enter');
     },
     methods: {
         _checkPhoneNumber() {
@@ -254,7 +256,6 @@ export default {
             this.isMarkShow = false;
         },
         selectRole1 (){
-            alert('车队');
             //ajax...
             if((this.first != null) || (this.second != null)){
                 saveShare('03', this.first, this.second, this.phoneNumber);
@@ -318,7 +319,6 @@ export default {
             });
         },
         selectRole(role){
-            alert('司机');
             //ajax...
             if((this.first != null) || (this.second != null)){
                 saveShare('02', this.first, this.second, this.phoneNumber);

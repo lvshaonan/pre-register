@@ -23,6 +23,8 @@ import productMedia from '@/components/registerDriver/product-media'
 
 Vue.use(Router)
 
+
+
 export default new Router({
   routes: [
     {
