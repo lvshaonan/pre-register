@@ -10,7 +10,6 @@ Vue.config.productionTip = false
 let enter = localStorage.getItem('xiaohei_index_enter');
 
 if(enter == null){
-  console.log(111);
   localStorage.setItem('xiaohei_index_enter', 0);
   router.beforeEach((to, from, next) => {
     if (document.URL.indexOf('index.html?t=') < 0) {

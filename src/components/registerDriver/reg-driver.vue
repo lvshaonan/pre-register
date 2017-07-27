@@ -101,47 +101,61 @@ export default {
             }
         },
         checkIsEffective() {
-            axios({
-                method: 'post',
-                url: api+'/d/check_mobile',
-                data: {
-                    mobile: this.phoneNumber
-                },  
-                transformRequest: [function (data) {
-                    let ret = ''
-                    for (let it in data) {
-                    ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+            if(this.checkPhoneNumber){
+                axios({
+                    method: 'post',
+                    url: api+'/d/check_mobile',
+                    data: {
+                        mobile: this.phoneNumber
+                    },  
+                    transformRequest: [function (data) {
+                        let ret = ''
+                        for (let it in data) {
+                        ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+                        }
+                        return ret
+                    }],
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
                     }
-                    return ret
-                }],
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-            .then((res) => {
-                console.log(res.data);
-                if(res.data.code === 0){
-                    if(res.data.data){
-                        this.isEffective = true;
-                        return;
-                    }else{
-                        setTimeout(() => {
-                            this.isDialogShow = true;
-                        },100);
-                        this.dialogTit = '手机号无效或已注册';
-                        return;
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    if(res.data.code === 0){
+                        if(res.data.data){
+                            this.isEffective = true;
+                            return;
+                        }else{
+                            setTimeout(() => {
+                                this.isDialogShow = true;
+                            },100);
+                            this.dialogTit = '手机号无效或已注册';
+                            return;
+                        }
                     }
-                }
-            })
-            .catch((error) => {
+                })
+                .catch((error) => {
+                    setTimeout(() => {
+                        this.isDialogShow = true;
+                    },100);
+                    this.dialogTit = '服务器错误';
+                    console.log('错误了'+ error)
+                });
+            }else{
                 setTimeout(() => {
                     this.isDialogShow = true;
                 },100);
-                this.dialogTit = '服务器错误';
-                console.log('错误了'+ error)
-            });
+                this.dialogTit = '请输入正确手机号';
+                return;
+            }
         },
         checkCode() {
+            let re = /^\d{4}$/;
+            this.checkVerification = false;
+            this.verification = this.verification.replace(/[^0-9]/ig,"");
+            if(re.test(this.verification)){
+                this.checkVerification = true;
+            }
             axios({
                 method: 'post',
                 url: api+'/d/check_captcha',
@@ -185,11 +199,12 @@ export default {
             });
         },
         _checkVerification() {
-            let re = /^\d{4}$/;
-            this.checkVerification = false;
-            if(re.test(this.verification)){
-                this.checkVerification = true;
-            }
+            // let re = /^\d{4}$/;
+            // this.checkVerification = false;
+            // this.verification = this.verification.replace(/[^0-9]/ig,"");
+            // if(re.test(this.verification)){
+            //     this.checkVerification = true;
+            // }
         },
         _checkPassword() {
             let re = /^[a-zA-Z0-9]{6,}$/;
@@ -205,6 +220,7 @@ export default {
             }
         },
         sendVerification() {
+            clearInterval(this.timer);
             if(this.phoneNumber.length != 11){
                 setTimeout(() => {
                     this.isDialogShow = true;
@@ -318,7 +334,7 @@ export default {
                 console.log('错误'+ error)
             });
         },
-        selectRole(role){
+        selectRole(){
             //ajax...
             if((this.first != null) || (this.second != null)){
                 saveShare('02', this.first, this.second, this.phoneNumber);
